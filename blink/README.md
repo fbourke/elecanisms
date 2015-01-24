@@ -4,10 +4,10 @@ Instructions to run our blink program:
 1. Install SCons using apt-get
 2. Download the xc16 microchip compiler for your architecture from microchip.com/compilers
 3. Run the installer in a terminal. Accept the defaults, except if they will do dumb things.
-	POTENTIAL PITFALL: if you get a segmentation fault, run the xc16 installer with the '--mode text' flag.
-	33. some text
-	34. some text
+	33. POTENTIAL PITFALL: if you get a segmentation fault, run the xc16 installer with the '--mode text' flag.
 4. Download the bootloader code from elecanisms.olin.edu/internal/bootloader.zip Unzip this into somewhere you can remember. 
+	44. Follow the instructions in the bootloader readme to install the correct USB devices.
+	45. Protip: use lsusb to see attached USB devices. If you see a device with 6666:4321, your board is in bootloader mode and ready to accept code.
 5. Clone our git repo, eschneider1992/elecanisms, somewhere near the unzipped bootloader code.
-55. Reset the elecanisms board holding switch1
+55. Press the reset button while holding switch1, release the reset button, then release switch1. You can run lsusb to confirm your board is ready.
 6. To build our code, navigate into the blink folder and run 'scons'. This will also load the compiled hex file onto the elecanisms board. Our code is a binary counter with the 3 LEDs.
