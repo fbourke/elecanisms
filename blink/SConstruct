@@ -1,3 +1,4 @@
+import bootloadercmd as b
 
 env = Environment(PIC = '24FJ128GB206', 
                   CC = 'xc16-gcc', 
