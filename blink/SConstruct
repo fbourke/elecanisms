@@ -18,5 +18,23 @@ env.Append(BUILDERS = {'List' : list})
 env.Program('blink', ['blink.c',
                       '../lib/timer.c',
                       '../lib/ui.c'])
+
+print('Creating builder to load hex file via bootloader...')
+def load_function(target, source, env):
+    bl = b.bootloadercmd()
+    bl.import_hex(source[0].rstr())
+    bl.write_device()
+    bl.bootloader.start_user()
+    bl.bootloader.close()
+    return None
+
+load = Builder(action=load_function,
+               suffix = 'none',
+               src_suffix = 'hex')
+
+env.Append(BUILDERS = {'load' : load})
+
+
 env.Hex('blink')
 env.List('blink')
+env.load('blink')
