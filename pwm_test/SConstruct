@@ -5,7 +5,7 @@ import bootloadercmd as b
 
 # Type the filename you want, e.g. blink
 # Don't include the .c tag
-file_to_run = 'analog_test'
+file_to_run = 'pwm_test'
 
 
 def setup_PIC_env():
