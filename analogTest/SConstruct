@@ -3,7 +3,9 @@ sys.path.append(os.path.relpath("../site_scons"))
 import bootloadercmd as b
 
 
-file_to_run = 'analog_test'
+# Type the filename you want, e.g. blink
+# Don't include the .c tag
+file_to_run = 'blink'
 
 
 def setup_PIC_env():
@@ -44,14 +46,21 @@ def append_builders(env):
   return env
 
 
+########## Actually runs the scons code ##########
 env = setup_PIC_env()
-env.Program(file_to_run), [file_to_run+'.c',
-                        '../lib/timer.c',
-                        '../lib/ui.c'])
+env.Program(file_to_run, [file_to_run+'.c',
+                        '../lib/i2c.c',
+                        '../lib/oc.c',
+                        '../lib/pin.c',
+                        '../lib/spi.c',
+                        '../lib/uart.c',
+                        '../lib/ui.c',
+                        '../lib/timer.c'])
+# Left out imu.c, usb.c
 
 print('Creating builder to load hex file via bootloader...')
 append_builders(env)
 
-env.Hex('file_to_run')
-env.List('file_to_run')
-env.load('file_to_run')
+env.Hex(file_to_run)
+env.List(file_to_run)
+env.load(file_to_run)
