@@ -3,7 +3,7 @@ sys.path.append(os.path.relpath("../site_scons"))
 import bootloadercmd as b
 
 
-file_to_run = 'blink'
+file_to_run = 'analog_test'
 
 
 def setup_PIC_env():

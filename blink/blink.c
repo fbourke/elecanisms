@@ -12,6 +12,7 @@ int16_t main(void) {
     led_on(&led1);
     led_on(&led2);
     led_on(&led3);
+
     timer_setPeriod(&timer1, 0.125);
     timer_start(&timer1);
     timer_setPeriod(&timer2, 0.25);
