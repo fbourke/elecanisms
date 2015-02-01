@@ -10,22 +10,6 @@
 
 uint8_t string[40];
 
-void setup_motors() {
-    // Set various enables
-    led_on(&led1); led_on(&led2); led_on(&led3);
-    pin_digitalOut(&D[2]);
-    pin_digitalOut(&D[3]);
-    pin_digitalOut(&D[4]);
-    pin_digitalOut(&D[5]);
-    pin_digitalOut(&D[6]);
-    pin_set(&D[2]);
-    pin_clear(&D[3]);
-    pin_set(&D[4]);
-    // Turn the motors off
-    pin_clear(&D[5]);
-    pin_set(&D[6]);
-}
-
 int16_t main(void) {
     init_clock();
     init_oc();
@@ -33,7 +17,8 @@ int16_t main(void) {
     init_timer();
     init_uart();
     init_ui();
-    setup_motors();
+    setup_motor_shield();
+    pin_set(&D[6]);
 
     timer_setPeriod(&timer1, 1);
     timer_start(&timer1);
@@ -45,6 +30,7 @@ int16_t main(void) {
     oc_pwm(&oc1, &D[6], NULL, 10000, duty_cycle << 6);  // D[6] is on/off
 
     printf("Hello World!\n");
+    led_on(&led1); led_on(&led2); led_on(&led3);
 
     printf("What is your name? ");
     uart_gets(&uart1, string, 40);

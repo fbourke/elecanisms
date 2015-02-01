@@ -9,30 +9,16 @@
 
 uint8_t string[40];
 
-void setup_motors() {
-    // Set various enables
-    pin_digitalOut(&D[2]);
-    pin_digitalOut(&D[3]);
-    pin_digitalOut(&D[4]);
-    pin_digitalOut(&D[5]);
-    pin_digitalOut(&D[6]);
-    pin_set(&D[2]);
-    pin_clear(&D[3]);
-    pin_set(&D[4]);
-    // Turn the motors off
-    pin_clear(&D[5]);
-    pin_clear(&D[6]);
-}
-
 int16_t main(void) {
     init_clock();
     init_pin();
     init_timer();
     init_uart();  // Default is 19200 baud
     init_ui();
-    setup_motors();
+    setup_motor_shield();
 
     printf("Hello World!\n");
+    led_on(&led1); led_on(&led2); led_on(&led3);
 
     printf("What is your name? ");
     uart_gets(&uart1, string, 40);
