@@ -202,7 +202,13 @@ class bootloadercmd:
                         line = line + '.'
             outfile.write(line)
         outfile.close()
-    
+
+    def disconnect(self, event=None):
+        self.bootloader.start_user()
+        self.bootloader.close()
+        self.connected = False
+        print 'Disconnected from PIC24FJ USB bootloader device.\nStarting user code.'
+
     def import_hex(self, filename = ''):
         if filename=='':
             return
@@ -353,6 +359,8 @@ OPTIONS
     -v    Verify that the contents of program memory of the connected PIC24FJ 
           USB bootloader device match those of the flash memory buffer.
 
+    -n    Disconnect the bootloader and run the contents of the program memory
+
     -x <hex_file>
           Export the contents of the flash memory buffer to a hex file 
           specified by <hex_file>.
@@ -401,6 +409,8 @@ def main(argv):
             boot.verify()
         elif argv[i]=='-b':
             boot.blank_check()
+        elif argv[i]=='-n':
+            boot.disconnect()
         elif argv[i]=='-h' or argv[i]=='--help':
             pass
         else:
