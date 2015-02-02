@@ -5,6 +5,7 @@ Instructions to run our blink program:
 2. Download the xc16 microchip compiler for your architecture from microchip.com/compilers
 3. Run the installer in a terminal. Accept the defaults, except if they will do dumb things.
 	33. POTENTIAL PITFALL: if you get a segmentation fault, run the xc16 installer with the '--mode text' flag.
+	34. POTENTIAL PITFALL: If you run the .run file from the terminal and nothing appears, try installing the 32-bit libraries... lib32z1, lib32ncurses5, lib32bz2-1.0, openjdk-7-jre
 4. Download the bootloader code from elecanisms.olin.edu/internal/bootloader.zip Unzip this into somewhere you can remember. 
 	44. Follow the instructions in the bootloader readme to install the correct USB devices.
 	45. Protip: use lsusb to see attached USB devices. If you see a device with 6666:4321, your board is in bootloader mode and ready to accept code.
