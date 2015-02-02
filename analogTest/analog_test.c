@@ -32,10 +32,9 @@ int16_t main(void) {
     while (1) {
         if (timer_flag(&timer1)) {
             timer_lower(&timer1);
-            for (i = 0; i<6; i++) {
-                pin_analogIn(&A[i]);
-                printf(">> Voltage: %d\n", pin_read(&A[i]) >> 6);
-            }
+            // for (i = 0; i<6; i++) {
+                printf("%d\n", pin_read(&A[3]) >> 6);
+            // }
             printf("\n");
         }
     }
