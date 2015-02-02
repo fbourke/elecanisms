@@ -60,9 +60,8 @@ void track_flips(_TIMER *self) {
         flipped = 0;
     }
 
-    // Calculate speed
-    if(rawOffset < 150)
-    {
+    // Calculate velocity
+    if(rawOffset < 150) {
         acceleration = (velocity - rawDiff*LOOP_FREQ)*LOOP_FREQ;
         velocity = rawDiff*LOOP_FREQ;
     }

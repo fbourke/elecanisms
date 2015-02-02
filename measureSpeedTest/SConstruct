@@ -5,7 +5,7 @@ import bootloadercmd as b
 
 # Type the filename you want, e.g. blink
 # Don't include the .c tag
-file_to_run = 'angle_test_eric'
+file_to_run = 'measure_speed_test'
 
 
 def setup_PIC_env():

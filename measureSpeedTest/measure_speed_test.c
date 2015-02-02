@@ -9,27 +9,31 @@
 #include "ui.h"
 #include "oc.h"
 
-#define LOOP_FREQ 5000
+
+// This code runs the motor at a variable speed when switched and prints
+// the velocity to terminal. Good for testing accuracy of magnetic sensor
+
+
+#define FLIP_TRACKING_FREQ 5000
+#define SPEED_CHECK_FREQ 10
 #define FLIP_THRESHOLD 700
 
+
 _PIN *sensorPosPin = &A[3];
-uint8_t string[40];
 
 // Position tracking variables
-volatile int updatedPos = 0;     // keeps track of the latest updated value of the MR sensor reading
 volatile int rawPos = 0;         // current raw reading from MR sensor
-volatile int lastRawPos = 0;     // last raw reading from MR sensor
-volatile int lastLastRawPos = 0; // last last raw reading from MR sensor
+volatile int lastRawPos = 0;
+volatile int lastLastRawPos = 0;
 volatile int flipNumber = 0;     // keeps track of the number of flips over the 180deg mark
-volatile int tempOffset = 0;
 volatile int rawDiff = 0;
 volatile int lastRawDiff = 0;
 volatile int rawOffset = 0;
 volatile int lastRawOffset = 0;
 volatile int flipped = 0;
+
+// Velocity tracking variables
 volatile int velocity = 0;
-volatile int acceleration = 0;
-volatile int systemTime = 0;
 volatile int lastFlips = 0;
 
 
@@ -61,14 +65,11 @@ void track_flips(_TIMER *self) {
         else { flipNumber++; }
         flipped = 1;
     }
-    else {
-        flipped = 0;
-    }
+    else { flipped = 0; }
 }
 
 void track_speed(_TIMER *self) {
-    systemTime++;
-    velocity = (flipNumber-lastFlips);
+    velocity = (flipNumber - lastFlips) * SPEED_CHECK_FREQ * 30; // The 30 scalar turns flips/sec into RPM
     lastFlips = flipNumber;
 }
 
@@ -81,29 +82,29 @@ int16_t main(void) {
     init_oc();
     setup();
 
+    // Set the print timer
     timer_setPeriod(&timer1, 0.1);
     timer_start(&timer1);
+    // Set the interrupt timer to track flips
+    timer_every(&timer2, 1.0 / FLIP_TRACKING_FREQ, track_flips);
+    printf("Control Loop Period: %f\n", 1.0 / FLIP_TRACKING_FREQ);
+    // Set the interrupt timer to track speed
+    timer_every(&timer3, 1.0/SPEED_CHECK_FREQ, track_speed);
 
-    oc_pwm(&oc1, &D[3], NULL, 20000, 1023 << 6);  // D[3] is tri-stating
-
-
-    timer_every(&timer2, (1.0/LOOP_FREQ), track_flips);
-
-    timer_every(&timer3, 1, track_speed);
-
-    printf("Control Loop Period: %f\n",1.0/LOOP_FREQ);
+    // Start the motor PWM signal
+    oc_pwm(&oc1, &D[3], NULL, 20000, 1023 << 6);
 
     while (1) {
         if (timer_flag(&timer1)) {
             timer_lower(&timer1);
-            printf("rawDiff:\t%d\tflipNumber:\t%d\tvelocity:\t%d\taccel:\t%d\n",
-                   rawDiff, flipNumber, velocity, acceleration);
+            printf("rawDiff:\t%d\tflips:\t%d\tvel (RPM):\t%d\n",
+                    rawDiff, flipNumber, velocity);
         }
         if (!sw_read(&sw1)) {
-            pin_write(&D[3],386 << 6);
+            pin_write(&D[3], 386 << 6);
         }
         else {
-            pin_write(&D[3],1023 << 6);
+            pin_write(&D[3], 1023 << 6);
         }
     }
 }
