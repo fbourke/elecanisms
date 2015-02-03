@@ -40,3 +40,15 @@ int16_t main(void) {
         }
     }
 }
+
+/*
+degrees, measurement output
+0, 76 
+45, 382
+90, 600
+135, 738
+180, 845
+
+
+
+*/
