@@ -7,6 +7,8 @@ def main():
   fig = plt.figure()
   ax = plt.axes(xlim=(-5, 185), ylim=(0, 900))
   plt.plot(angle,measurement, 'bo')
+  plt.xlabel("Angle Input (Degrees)")
+  plt.ylabel("Sensor Output")
   plt.show()
 
 
