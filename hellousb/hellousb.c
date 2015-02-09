@@ -1,10 +1,10 @@
 #include <p24FJ128GB206.h>
+#include <stdio.h>
 #include "config.h"
 #include "common.h"
 #include "usb.h"
 #include "pin.h"
 #include "uart.h"
-#include <stdio.h>
 
 #define HELLO       0   // Vendor request that prints "Hello World!"
 #define SET_VALS    1   // Vendor request that receives 2 unsigned integer values

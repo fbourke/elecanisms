@@ -168,14 +168,18 @@ typedef unsigned char BYTE;
 //} WORD32;
 
 typedef struct {
-	BYTE __attribute__ ((packed)) bytecount;
-	BYTE __attribute__ ((packed)) status;
+	// BYTE __attribute__ ((packed)) bytecount;
+	// BYTE __attribute__ ((packed)) status;
+	BYTE bytecount;
+	BYTE status;
 	BYTE *address;
 } BUFDESC;
 
 typedef struct {
-	BYTE __attribute__ ((packed)) bmRequestType;
-	BYTE __attribute__ ((packed)) bRequest;
+	// BYTE __attribute__ ((packed)) bmRequestType;
+	// BYTE __attribute__ ((packed)) bRequest;
+	BYTE bmRequestType;
+	BYTE bRequest;
 	WORD wValue;
 	WORD wIndex;
 	WORD wLength;

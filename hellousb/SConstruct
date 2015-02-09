@@ -5,7 +5,7 @@ import bootloadercmd as b
 
 # Type the filename you want, e.g. blink
 # Don't include the .c tag
-file_to_run = 'blink'
+file_to_run = 'hellousb'
 
 
 def setup_PIC_env():
@@ -55,7 +55,8 @@ env.Program(file_to_run, [file_to_run+'.c',
                         '../lib/spi.c',
                         '../lib/uart.c',
                         '../lib/ui.c',
-                        '../lib/timer.c'])
+                        '../lib/timer.c',
+                        '../lib/usb.c'])
 # Left out imu.c, usb.c
 
 print('Creating builder to load hex file via bootloader...')
