@@ -51,21 +51,21 @@ void VendorRequests(void) {
             BD[EP0IN].status = 0xC8;    // send packet as DATA1, set UOWN bit
             break;
         default:
-            USB_error_flags |= 0x01;    // set Request Error Flag
+            USB_error_flags |= 0x01;  // set Request Error Flag
     }
 }
 
 void VendorRequestsIn(void) {
     switch (USB_request.setup.bRequest) {
         default:
-            USB_error_flags |= 0x01;                    // set Request Error Flag
+            USB_error_flags |= 0x01;  // set Request Error Flag
     }
 }
 
 void VendorRequestsOut(void) {
     switch (USB_request.setup.bRequest) {
         default:
-            USB_error_flags |= 0x01;                    // set Request Error Flag
+            USB_error_flags |= 0x01;  // set Request Error Flag
     }
 }
 
@@ -77,7 +77,7 @@ int16_t main(void) {
     val2 = 0;
 
     InitUSB();                              // initialize the USB registers and serial interface engine
-    while (USB_USWSTAT!=CONFIG_STATE) {     // while the peripheral is not configured...
+    while (USB_USWSTAT != CONFIG_STATE) {     // while the peripheral is not configured...
         ServiceUSB();                       // ...service USB requests
     }
     while (1) {
