@@ -29,6 +29,7 @@ int16_t main(void) {
         if (timer_flag(&timer1)) {
             timer_lower(&timer1);
             printf("Flips: %d\n", get_flips());
+            printf("Angle: %d\n", get_angle());
         }
     }
 }

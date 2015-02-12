@@ -25,4 +25,6 @@ void init_flip_tracking();
 int get_flips();
 void track_flips(_TIMER *self);
 
+int get_angle();
+
 #endif

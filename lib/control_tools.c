@@ -7,6 +7,17 @@
 #include "pin.h"
 
 _FLIP_TRACKER FlipTracker;
+int low_angle = 300;
+
+int get_flips() {
+    return FlipTracker.flipNumber;
+}
+
+int get_angle() {
+    int rawPos = (int) (pin_read(&A[3]) >> 6);
+    if (rawPos < low_angle) { low_angle = rawPos; }
+    return rawPos - low_angle;
+}
 
 void init_flip_tracking() {
     FlipTracker.rawPos = 0;
@@ -21,10 +32,6 @@ void init_flip_tracking() {
     pin_analogIn(&A[3]);
     FlipTracker.lastLastRawPos = pin_read(&A[3]) >> 6;
     FlipTracker.lastRawPos = pin_read(&A[3]) >> 6;
-}
-
-int get_flips() {
-    return FlipTracker.flipNumber;
 }
 
 void track_flips(_TIMER *self) {
