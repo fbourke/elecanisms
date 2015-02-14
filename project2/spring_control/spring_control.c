@@ -37,6 +37,8 @@ void setMotorPWM(int error) {
 }
 
 void setup() {
+    init_flip_tracking();
+    setup_motor_shield();
     // Set the control loop timer
     timer_setPeriod(&timer1, 1.0 / CONTROL_FREQ);
     timer_start(&timer1);
@@ -52,8 +54,6 @@ int16_t main(void) {
     init_timer();
     init_uart();  // Default is 19200 baud
     init_ui();
-    init_flip_tracking();
-    setup_motor_shield();
     setup();
 
     int flips = 0;
