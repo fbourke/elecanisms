@@ -23,13 +23,14 @@ int16_t main(void) {
     timer_start(&timer1);
     // Set the interrupt timer to track flips
     timer_every(&timer2, 1.0 / FLIP_TRACKING_FREQ, track_flips);
-    printf("Control Loop Period: %f\n", 1.0 / FLIP_TRACKING_FREQ);
+    timer_every(&timer3, 1.0 / VELOCITY_TRACKING_FREQ, track_velocity);
 
     while (1) {
         if (timer_flag(&timer1)) {
             timer_lower(&timer1);
             printf("Flips: %d\n", get_flips());
             printf("Angle: %d\n", get_angle());
+            printf("Velocity: %d\n", get_angle());
         }
     }
 }

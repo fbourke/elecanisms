@@ -65,7 +65,7 @@ int16_t main(void) {
             int temppin9 = __digitalRead(&D[9]);
             if(!temppin9) {
                 printf("%d %d\n", temppin0, temppin1);
-            } 
+            }
         }
 
         if (!sw_read(&sw1)) {
