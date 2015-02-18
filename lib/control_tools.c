@@ -23,7 +23,7 @@ int get_angle() {
 int get_velocity() {
     int i, sum = 0;
     for (i = 0; i < (TRACKED_VELOCITY_POINTS - 1); i++) {
-        sum += rawVelocity[i];
+        sum += rawAngles[i];
     }
     return sum / TRACKED_VELOCITY_POINTS;
 }
@@ -71,15 +71,15 @@ void init_angle_tracking() {
 }
 
 void track_velocity(_TIMER *self) {
-    for (i = (TRACKED_VELOCITY_POINTS - 1); i > 0; i--) {
-        rawVelocity[i] = rawVelocity[i - 1];
+    for (int i = (TRACKED_VELOCITY_POINTS - 1); i > 0; i--) {
+        rawAngles[i] = rawAngles[i - 1];
     }
     int flips = get_flips();
     int angle = get_angle();
     if (flips >= 0) {
-        rawVelocity[0] = flips * TICKS_PER_REV + angle;
+        rawAngles[0] = flips * TICKS_PER_REV + angle;
     }
     else {
-        rawVelocity[0] = flips * TICKS_PER_REV + (angle - TICKS_PER_REV);
+        rawAngles[0] = flips * TICKS_PER_REV + (angle - TICKS_PER_REV);
     }
 }
