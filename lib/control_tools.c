@@ -8,7 +8,7 @@
 
 _FLIP_TRACKER FlipTracker;
 int low_angle = 300;
-_VELOCITY_TRACKER VelocityTracker;
+int rawAngles[TRACKED_VELOCITY_POINTS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int get_flips() {
     return FlipTracker.flipNumber;
@@ -23,7 +23,7 @@ int get_angle() {
 int get_velocity() {
     int i, sum = 0;
     for (i = 0; i < (TRACKED_VELOCITY_POINTS - 1); i++) {
-        sum += VelocityTracker.rawVelocity[i];
+        sum += rawVelocity[i];
     }
     return sum / TRACKED_VELOCITY_POINTS;
 }
@@ -66,27 +66,20 @@ void track_flips(_TIMER *self) {
     else { FlipTracker.flipped = 0; }
 }
 
-void init_velocity_tracking() {
-    VelocityTracker.rawVemf = 512;
-    VelocityTracker.lastRawVemf = 512;
-    int i;
-    for (i = 0; i > TRACKED_VELOCITY_POINTS - 1; i++) {
-        VelocityTracker.rawVelocity[i] = 512;
-    }
-    pin_analogIn(&A[1]);
+void init_angle_tracking() {
+    pin_analogIn(&A[3]);
 }
 
 void track_velocity(_TIMER *self) {
-    if (!__digitalRead(&D[9])) {
-        VelocityTracker.rawVemf = pin_read(&A[1]) >> 6;
-        if (abs(VelocityTracker.rawVemf - VelocityTracker.lastRawVemf) > BAD_VELOCITY_THRESHOLD) {
-            int i;
-            for (i = (TRACKED_VELOCITY_POINTS - 1); i > 0; i--) {
-                VelocityTracker.rawVelocity[i] =
-                    VelocityTracker.rawVelocity[i - 1];
-            }
-            VelocityTracker.rawVelocity[0] = VelocityTracker.rawVemf;
-            VelocityTracker.lastRawVemf = VelocityTracker.rawVemf;
-        }
+    for (i = (TRACKED_VELOCITY_POINTS - 1); i > 0; i--) {
+        rawVelocity[i] = rawVelocity[i - 1];
+    }
+    int flips = get_flips();
+    int angle = get_angle();
+    if (flips >= 0) {
+        rawVelocity[0] = flips * TICKS_PER_REV + angle;
+    }
+    else {
+        rawVelocity[0] = flips * TICKS_PER_REV + (angle - TICKS_PER_REV);
     }
 }

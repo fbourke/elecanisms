@@ -8,8 +8,8 @@
 
 #define FLIP_TRACKING_FREQ 		5000
 #define FLIP_THRESHOLD 			700
-#define VELOCITY_TRACKING_FREQ	20
-#define BAD_VELOCITY_THRESHOLD	600
+#define TICKS_PER_REV           790  // On the angle sensor
+#define VELOCITY_TRACKING_FREQ	500
 #define TRACKED_VELOCITY_POINTS	10
 
 typedef struct _FLIP_TRACKER {
@@ -24,16 +24,11 @@ typedef struct _FLIP_TRACKER {
     int flipped;
 } _FLIP_TRACKER;
 
-typedef struct _VELOCITY_TRACKER {
-    int rawVemf;
-    int lastRawVemf;
-    int rawVelocity[TRACKED_VELOCITY_POINTS];
-} _VELOCITY_TRACKER;
-
 void init_flip_tracking();
 int get_flips();
 void track_flips(_TIMER *self);
 
+void init_angle_tracking();
 int get_angle();
 
 void init_velocity_tracking();
