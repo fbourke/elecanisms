@@ -17,6 +17,7 @@ int16_t main(void) {
     init_uart();  // Default is 19200 baud
     init_ui();
     init_flip_tracking();
+    init_velocity_tracking();
 
     // Set the print timer
     timer_setPeriod(&timer1, 0.1);
@@ -30,7 +31,7 @@ int16_t main(void) {
             timer_lower(&timer1);
             printf("Flips: %d\n", get_flips());
             printf("Angle: %d\n", get_angle());
-            printf("Velocity: %d\n", get_angle());
+            printf("Velocity: %d\n", get_velocity());
         }
     }
 }
