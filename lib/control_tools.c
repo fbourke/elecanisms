@@ -20,13 +20,12 @@ int get_angle() {
     return rawPos - low_angle;
 }
 
-int get_velocity(){
-        int i, sum = 0;
-        for (i = 0; i < (TRACKED_VELOCITY_POINTS - 1); i++) {
-            sum += rawVelocity[i];
-        }
-        return = sum / TRACKED_VELOCITY_POINTS;
+int get_velocity() {
+    int i, sum = 0;
+    for (i = 0; i < (TRACKED_VELOCITY_POINTS - 1); i++) {
+        sum += VelocityTracker.rawVelocity[i];
     }
+    return sum / TRACKED_VELOCITY_POINTS;
 }
 
 void init_flip_tracking() {
@@ -68,11 +67,12 @@ void track_flips(_TIMER *self) {
 }
 
 void init_velocity_tracking() {
-    VelocityTracker.rawVemf = 0;
-    VelocityTracker.lastRawVemf = 0;
-    VelocityTracker.rawVelocity[TRACKED_VELOCITY_POINTS] =
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    pin_digitalIn(&D[9]);
+    VelocityTracker.rawVemf = 512;
+    VelocityTracker.lastRawVemf = 512;
+    int i;
+    for (i = 0; i > TRACKED_VELOCITY_POINTS - 1; i++) {
+        VelocityTracker.rawVelocity[i] = 512;
+    }
     pin_analogIn(&A[1]);
 }
 
