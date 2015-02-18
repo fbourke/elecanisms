@@ -31,7 +31,6 @@ void track_flips(_TIMER *self);
 void init_angle_tracking();
 int get_angle();
 
-void init_velocity_tracking();
 int get_velocity();
 void track_velocity(_TIMER *self);
 
