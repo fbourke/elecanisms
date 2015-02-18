@@ -12,28 +12,42 @@
 
 
 #define RESPONSE_HEIGHT 1023
-#define RESPONSE_WIDTH  10
-#define CONTROL_FREQ    200  // Hz
+#define CONTROL_FREQ    20  // Hz
+#define NEGATIVE_WALL   -2
+#define POSITIVE_WALL   2
 
 
 void setMotorDirection(int flips) {
     if (flips < 0) {
         pin_clear(&D[5]);
         pin_set(&D[6]);
-        pin_write(&D[2], 1023 << 6);
     }
     else if (flips > 0) {
         pin_clear(&D[6]);
         pin_set(&D[5]);
-        pin_write(&D[2], 0 << 6);
     }
     else {
         pin_clear(&D[5]);
         pin_clear(&D[6]);
-        pin_write(&D[2], 0 << 6);
     }
 }
 
+void setMotorPWM(int flips, int angle) {
+    if (flips == NEGATIVE_WALL) {
+        // Maps 0-800 to 0-1023, Takes care of the 6 bit shift
+        pin_write(&D[2], abs(angle - TICKS_PER_REV) * 83);
+    }
+    else if (flips == POSITIVE_WALL) {
+        // Maps 0-800 to 0-1023, Takes care of the 6 bit shift
+        pin_write(&D[2], angle * 83);
+    }
+    else if (flips < NEGATIVE_WALL || flips > POSITIVE_WALL) {
+        pin_write(&D[2], RESPONSE_HEIGHT << 6);
+    }
+    else {
+        pin_write(&D[2], 0 << 6);
+    }
+}
 
 void setup() {
     init_flip_tracking();
@@ -57,7 +71,6 @@ int16_t main(void) {
 
     int flips = 0;
     int angle = 0;
-    int goal_angle = 200;
 
     while (1) {
         if (timer_flag(&timer1)) {
@@ -65,6 +78,7 @@ int16_t main(void) {
             flips = get_flips();
             angle = get_angle();
             setMotorDirection(flips);
+            setMotorPWM(flips, angle);
         }
     }
 }
