@@ -5,7 +5,7 @@ import bootloadercmd as b
 
 # Type the filename you want, e.g. blink
 # Don't include the .c tag
-file_to_run = 'rough_control'
+file_to_run = 'damp_control'
 
 
 def setup_PIC_env():

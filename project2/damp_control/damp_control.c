@@ -16,12 +16,12 @@
 #define CONTROL_FREQ    200  // Hz
 
 
-void setMotorDirection(int flips) {
-    if (flips < 0) {
+void setMotor(int velocity) {
+    if (velocity > 0) {
         pin_clear(&D[5]);
         pin_set(&D[6]);
     }
-    else if (flips > 0) {
+    else if (velocity < 0) {
         pin_clear(&D[6]);
         pin_set(&D[5]);
     }
@@ -29,16 +29,10 @@ void setMotorDirection(int flips) {
         pin_clear(&D[5]);
         pin_clear(&D[6]);
     }
+
+    pin_write(&D[2], (abs(velocity)/5) << 6);
 }
 
-void setMotorPWM(int goal, int angle) {
-    if (abs(angle - goal) < RESPONSE_WIDTH || abs(angle - (goal+200)) < RESPONSE_WIDTH || abs(angle - (goal+400)) < RESPONSE_WIDTH) {
-        pin_write(&D[2], RESPONSE_HEIGHT << 6);
-    }
-    else {
-        pin_write(&D[2], 0 << 6);
-    }
-}
 
 void setup() {
     init_flip_tracking();
@@ -49,6 +43,7 @@ void setup() {
     oc_pwm(&oc1, &D[2], NULL, 400, 0);  // D[2] is tri-stating
     led_on(&led1); led_on(&led2); led_on(&led3);
     timer_every(&timer2, 1.0 / FLIP_TRACKING_FREQ, track_flips);
+    timer_every(&timer3, 1.0 / VELOCITY_TRACKING_FREQ, track_velocity);
 }
 
 int16_t main(void) {
@@ -62,6 +57,7 @@ int16_t main(void) {
 
     int flips = 0;
     int angle = 0;
+    int velocity = 0;
     int goal_angle = 200;
 
     while (1) {
@@ -69,8 +65,9 @@ int16_t main(void) {
             timer_lower(&timer1);
             flips = get_flips();
             angle = get_angle();
-            setMotorDirection(flips);
-            setMotorPWM(goal_angle, angle);
+            velocity = get_velocity();
+            printf("Velocity: \t%d\n",velocity);
+            setMotor(velocity);
         }
     }
 }
