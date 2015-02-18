@@ -55,19 +55,19 @@ void VendorRequests(void) {
     }
 }
 
-void VendorRequestsIn(void) {
-    switch (USB_request.setup.bRequest) {
-        default:
-            USB_error_flags |= 0x01;  // set Request Error Flag
-    }
-}
+// void VendorRequestsIn(void) {
+//     switch (USB_request.setup.bRequest) {
+//         default:
+//             USB_error_flags |= 0x01;  // set Request Error Flag
+//     }
+// }
 
-void VendorRequestsOut(void) {
-    switch (USB_request.setup.bRequest) {
-        default:
-            USB_error_flags |= 0x01;  // set Request Error Flag
-    }
-}
+// void VendorRequestsOut(void) {
+//     switch (USB_request.setup.bRequest) {
+//         default:
+//             USB_error_flags |= 0x01;  // set Request Error Flag
+//     }
+// }
 
 int16_t main(void) {
     init_clock();

@@ -15,6 +15,24 @@ BYTE USB_device_status;
 BYTE USB_USTAT;
 BYTE USB_USWSTAT;
 
+
+// Moved by Eric
+void VendorRequestsIn(void) {
+    switch (USB_request.setup.bRequest) {
+        default:
+            USB_error_flags |= 0x01;  // set Request Error Flag
+    }
+}
+
+// Moved by Eric
+void VendorRequestsOut(void) {
+    switch (USB_request.setup.bRequest) {
+        default:
+            USB_error_flags |= 0x01;  // set Request Error Flag
+    }
+}
+
+
 void InitUSB(void) {
     unsigned int *U1EP;
     BYTE n;

@@ -211,6 +211,10 @@ extern BYTE __attribute__ ((space(auto_psv))) String0[];
 extern BYTE __attribute__ ((space(auto_psv))) String1[];
 extern BYTE __attribute__ ((space(auto_psv))) String2[];
 
+// Moved by Eric
+extern void VendorRequestsIn(void);
+// Moved by Eric
+extern void VendorRequestsOut(void);
 extern void ProcessSetupToken(void);
 extern void ProcessInToken(void);
 extern void ProcessOutToken(void);
