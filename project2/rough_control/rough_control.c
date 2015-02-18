@@ -32,7 +32,7 @@ void setMotorDirection(int flips) {
 }
 
 void setMotorPWM(int goal, int angle) {
-    if (abs(angle - goal) < RESPONSE_WIDTH) {
+    if (abs(angle - goal) < RESPONSE_WIDTH || abs(angle - (goal+200)) < RESPONSE_WIDTH || abs(angle - (goal+400)) < RESPONSE_WIDTH) {
         pin_write(&D[2], RESPONSE_HEIGHT << 6);
     }
     else {
