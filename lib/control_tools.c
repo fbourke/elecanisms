@@ -71,12 +71,8 @@ void init_angle_tracking() {
 }
 
 void track_velocity(_TIMER *self) {
-<<<<<<< HEAD
     int i = 0;
     for (i = (TRACKED_VELOCITY_POINTS - 1); i > 0; i--) {
-=======
-    for (int i = (TRACKED_VELOCITY_POINTS - 1); i > 0; i--) {
->>>>>>> 5be3173558df62eae49f1d7004846d543eab00ab
         rawAngles[i] = rawAngles[i - 1];
     }
     int flips = get_flips();
