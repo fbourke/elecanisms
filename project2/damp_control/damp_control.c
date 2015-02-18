@@ -15,13 +15,16 @@
 #define RESPONSE_WIDTH  10
 #define CONTROL_FREQ    200  // Hz
 
+int damping = 6; // 6 is a good value for anti-resistance, 15 is good for resistance
+int direction = 1; //0 is resistance, 1 is the opposite
+
 
 void setMotor(int velocity) {
-    if (velocity > 0) {
+    if (velocity > 0 && direction || velocity < 0 && !direction) {
         pin_clear(&D[5]);
         pin_set(&D[6]);
     }
-    else if (velocity < 0) {
+    else if (velocity < 0 && direction || velocity > 0 && !direction) {
         pin_clear(&D[6]);
         pin_set(&D[5]);
     }
@@ -30,7 +33,9 @@ void setMotor(int velocity) {
         pin_clear(&D[6]);
     }
 
-    pin_write(&D[2], (abs(velocity)/5) << 6);
+    int output = ((abs(velocity*damping)) > 1023) ? 1023 : abs(velocity*damping);
+
+    pin_write(&D[2], output << 6);
 }
 
 
@@ -66,7 +71,6 @@ int16_t main(void) {
             flips = get_flips();
             angle = get_angle();
             velocity = get_velocity();
-            printf("Velocity: \t%d\n",velocity);
             setMotor(velocity);
         }
     }
