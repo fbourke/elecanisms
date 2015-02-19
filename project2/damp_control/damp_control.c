@@ -9,14 +9,14 @@
 #include "timer.h"
 #include "uart.h"
 #include "ui.h"
+#include "usb.h"
 
 
-#define RESPONSE_HEIGHT 1023
-#define RESPONSE_WIDTH  10
 #define CONTROL_FREQ    200  // Hz
 
+
 int damping = 6; // 6 is a good value for anti-resistance, 15 is good for resistance
-int direction = 1; //0 is resistance, 1 is the opposite
+int direction = 1; //0 is resistance, 1 is positive feedback
 
 
 void setMotor(int velocity) {
@@ -32,9 +32,7 @@ void setMotor(int velocity) {
         pin_clear(&D[5]);
         pin_clear(&D[6]);
     }
-
     int output = ((abs(velocity*damping)) > 1023) ? 1023 : abs(velocity*damping);
-
     pin_write(&D[2], output << 6);
 }
 
@@ -49,7 +47,48 @@ void setup() {
     led_on(&led1); led_on(&led2); led_on(&led3);
     timer_every(&timer2, 1.0 / FLIP_TRACKING_FREQ, track_flips);
     timer_every(&timer3, 1.0 / VELOCITY_TRACKING_FREQ, track_velocity);
+    InitUSB();                             // initialize the USB registers and serial interface engine
+    while (USB_USWSTAT != CONFIG_STATE) {  // while the peripheral is not configured...
+        ServiceUSB();                      // ...service USB requests
+    }
 }
+
+
+void VendorRequests(void) {
+    WORD temp;
+
+    switch (USB_setup.bRequest) {
+        case HELLO:
+            printf("Hello World!\n");
+            BD[EP0IN].bytecount = 0;    // set EP0 IN byte count to 0 
+            BD[EP0IN].status = 0xC8;    // send packet as DATA1, set UOWN bit
+            break;
+        case SET_VALS:
+            damping = USB_setup.wValue.w;
+            direction = USB_setup.wIndex.w;
+            BD[EP0IN].bytecount = 0;    // set EP0 IN byte count to 0 
+            BD[EP0IN].status = 0xC8;    // send packet as DATA1, set UOWN bit
+            break;
+        case GET_VALS:
+            temp.w = damping;
+            BD[EP0IN].address[0] = temp.b[0];
+            BD[EP0IN].address[1] = temp.b[1];
+            temp.w = direction;
+            BD[EP0IN].address[2] = temp.b[0];
+            BD[EP0IN].address[3] = temp.b[1];
+            BD[EP0IN].bytecount = 4;    // set EP0 IN byte count to 4
+            BD[EP0IN].status = 0xC8;    // send packet as DATA1, set UOWN bit
+            break;            
+        case PRINT_VALS:
+            printf("damping = %u, direction: %u\n", damping, direction);
+            BD[EP0IN].bytecount = 0;    // set EP0 IN byte count to 0
+            BD[EP0IN].status = 0xC8;    // send packet as DATA1, set UOWN bit
+            break;
+        default:
+            USB_error_flags |= 0x01;  // set Request Error Flag
+    }
+}
+
 
 int16_t main(void) {
     init_clock();
@@ -66,6 +105,7 @@ int16_t main(void) {
     int goal_angle = 200;
 
     while (1) {
+        ServiceUSB();
         if (timer_flag(&timer1)) {
             timer_lower(&timer1);
             flips = get_flips();
