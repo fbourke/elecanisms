@@ -12,10 +12,12 @@
 #include "usb.h"
 
 
-#define HELLO       0   // Vendor request that prints "Hello World!"
-#define SET_VALS    1   // Vendor request that receives 2 unsigned integer values
-#define GET_VALS    2   // Vendor request that returns 2 unsigned integer values
-#define PRINT_VALS  3   // Vendor request that prints 2 unsigned integer values 
+// This code hits the walls and linearly ramps the resistance up until the
+// resistance is full at one turn past the wall. You can run the python
+// adjustment file to change the wall position.
+// Open question: What if we change the linear ramping to something non-linear?
+
+
 #define RESPONSE_HEIGHT 1023
 #define CONTROL_FREQ    20  // Hz
 
