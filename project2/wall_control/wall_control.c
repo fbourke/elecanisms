@@ -18,10 +18,6 @@
 // Open question: What if we change the linear ramping to something non-linear?
 
 
-#define HELLO       0   // Vendor request that prints "Hello World!"
-#define SET_VALS    1   // Vendor request that receives 2 unsigned integer values
-#define GET_VALS    2   // Vendor request that returns 2 unsigned integer values
-#define PRINT_VALS  3   // Vendor request that prints 2 unsigned integer values 
 #define RESPONSE_HEIGHT 1023
 #define CONTROL_FREQ    20  // Hz
 
