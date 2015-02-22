@@ -6,12 +6,18 @@
 #include "pin.h"
 #include "uart.h"
 
+#ifndef HELLO
 #define HELLO       0   // Vendor request that prints "Hello World!"
 #define SET_VALS    1   // Vendor request that receives 2 unsigned integer values
 #define GET_VALS    2   // Vendor request that returns 2 unsigned integer values
 #define PRINT_VALS  3   // Vendor request that prints 2 unsigned integer values 
-
+#endif
 uint16_t val1, val2;
+
+//Map USB Interrupt service routine to ServiceUSB()
+void __attribute__((interrupt, auto_psv)) _USB1Interrupt(void) {
+    ServiceUSB();
+}
 
 //void ClassRequests(void) {
 //    switch (USB_setup.bRequest) {
@@ -77,11 +83,10 @@ int16_t main(void) {
     val2 = 0;
 
     InitUSB();                              // initialize the USB registers and serial interface engine
-    while (USB_USWSTAT != CONFIG_STATE) {     // while the peripheral is not configured...
-        ServiceUSB();                       // ...service USB requests
-    }
+    IEC5bits.USB1IE = 1;                    // Enable USB Interrupt
+
     while (1) {
-        ServiceUSB();                       // service any pending USB requests
+                               
     }
 }
 
