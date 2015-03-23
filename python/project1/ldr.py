@@ -15,7 +15,7 @@ from collections import deque
 import matplotlib.pyplot as plt 
 import matplotlib.animation as animation
 
-    
+
 # plot class
 class AnalogPlot:
   # constr
