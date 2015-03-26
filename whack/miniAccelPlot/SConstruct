@@ -8,7 +8,7 @@ import platform
 file_to_run = 'mputest'
 
 def setup_PIC_env():
-  env = Environment(PIC = '24FJ128GB206', 
+  env = Environment(PIC = '24FJ64GB002', 
                     CC = 'xc16-gcc', 
                     PROGSUFFIX = '.cof', 
                     CFLAGS = '-g -omf=coff -x c -mcpu=$PIC', 

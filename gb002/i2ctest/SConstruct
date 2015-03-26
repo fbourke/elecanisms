@@ -1,0 +1,24 @@
+
+env = Environment(PIC = '24FJ64GB002', 
+                  CC = 'pic30-gcc', 
+                  PROGSUFFIX = '.cof', 
+                  CFLAGS = '-g -omf=coff -x c -mcpu=$PIC', 
+                  LINKFLAGS = '-omf=coff -mcpu=$PIC -Wl,--script="app_p24FJ64GB002.gld"', 
+                  CPPPATH = '../lib')
+env.PrependENVPath('PATH', '/Applications/microchip/mplabc30/v3.30c/bin')
+bin2hex = Builder(action = 'pic30-bin2hex $SOURCE -omf=coff',
+                  suffix = 'hex', 
+                  src_suffix = 'cof')
+env.Append(BUILDERS = {'Hex' : bin2hex})
+list = Builder(action = 'pic30-objdump -S -D $SOURCE > $TARGET', 
+               suffix = 'lst', 
+               src_suffix = 'cof')
+env.Append(BUILDERS = {'List' : list})
+
+env.Program('i2ctest', ['i2ctest.c',
+                        'descriptors.c', 
+                        'usb.c', 
+                        '../lib/i2c.c', 
+                        '../lib/pin.c'])
+env.Hex('i2ctest')
+env.List('i2ctest')
