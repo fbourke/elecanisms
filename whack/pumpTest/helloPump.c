@@ -9,6 +9,8 @@
 
 
 volatile uint16_t switch2;
+volatile uint16_t switch1;
+
 uint16_t c;
 uint16_t d;
 
@@ -39,22 +41,24 @@ void push_down(){
 }
 
 void switch_state() {
+
 	switch2 = sw_read(&sw1);
+	switch1 = pin_read(&D[13]);
 	if (direction == UP) {
-		if (!switch2) {
+		if (!switch2 || !switch1) {
 			direction= DOWN;
 			push_up();
 
 		}
 	}
 	if (direction ==DOWN){
-		if (switch2){
+		if (switch2|| switch1){
 			direction = UP;
 			push_down();
 		}
 	}
 	if (direction == OFF){
-		if (switch2) {
+		if (switch2|| switch1) {
 			direction = UP;
 			push_up();
 		}
@@ -89,6 +93,8 @@ int16_t main(void) {
 	init_oc();
 	setup_pins();
 	setup_motor();
+
+ 	pin_digitalIn(&D[13]);
 
 	timer_setPeriod(&timer2, 0.01);
 	timer_start(&timer2);

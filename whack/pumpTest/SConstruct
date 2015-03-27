@@ -1,5 +1,5 @@
 import os, sys
-sys.path.append(os.path.relpath("../site_scons"))
+sys.path.append(os.path.relpath("../../site_scons"))
 import bootloadercmd as b
 
 
@@ -14,7 +14,7 @@ def setup_PIC_env():
                     PROGSUFFIX = '.cof', 
                     CFLAGS = '-g -omf=coff -x c -mcpu=$PIC', 
                     LINKFLAGS = '-omf=coff -mcpu=$PIC -Wl,--script="app_p24FJ128GB206.gld"', 
-                    CPPPATH = '../lib')
+                    CPPPATH = '../../lib')
   env.PrependENVPath('PATH', '/opt/microchip/xc16/v1.24/bin/')
   bin2hex = Builder(action = 'xc16-bin2hex $SOURCE -omf=coff',
                     suffix = 'hex', 
@@ -49,13 +49,13 @@ def append_builders(env):
 ########## Actually runs the scons code ##########
 env = setup_PIC_env()
 env.Program(file_to_run, [file_to_run+'.c',
-                        '../lib/i2c.c',
-                        '../lib/oc.c',
-                        '../lib/pin.c',
-                        '../lib/spi.c',
-                        '../lib/uart.c',
-                        '../lib/ui.c',
-                        '../lib/timer.c'])
+                        '../../lib/i2c.c',
+                        '../../lib/oc.c',
+                        '../../lib/pin.c',
+                        '../../lib/spi.c',
+                        '../../lib/uart.c',
+                        '../../lib/ui.c',
+                        '../../lib/timer.c'])
 # Left out imu.c, usb.c
 
 print('Creating builder to load hex file via bootloader...')
