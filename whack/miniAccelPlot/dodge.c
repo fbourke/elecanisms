@@ -75,7 +75,7 @@ int16_t main(void) {
 
     while(1) {
     	uint8_t values[6] = {0,0,0,0,0,0};
-    	uint8_t threshold = 1000;
+    	uint16_t threshold = 10000;
 		mpu_readRegs(MPU_GYRO_XOUT_H, &values, 6);
 		int x = 256*values[0] + values[1];
         int y = 256*values[2] + values[3];
@@ -86,9 +86,13 @@ int16_t main(void) {
         z = z>32767 ? z - 65536 : z;
 
         if (abs(x) > threshold || abs(y) > threshold || abs(z) > threshold) {
-        	pin_toggle(&D[3]);
-        	pin_toggle(&D[4]);
+            pin_set(&D[3]);
+            pin_set(&D[4]);
 
+        }
+        else {
+            pin_clear(&D[3]);
+            pin_clear(&D[4]);            
         }
 
         printf("X:%d     Y:%d     Z:%d\n",x,y,z);

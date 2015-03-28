@@ -8,8 +8,8 @@
 #include "uart.h"
 
 
-volatile uint16_t switch2;
-volatile uint16_t switch1;
+volatile uint16_t switchPressed;
+volatile uint16_t gyro;
 
 uint16_t c;
 uint16_t d;
@@ -21,20 +21,22 @@ OFF
 } Direction;
 
 
-Direction direction = OFF;
+volatile Direction direction = OFF;
 
 void turn_Off() {
 	pin_clear(&D[5]);
 	pin_clear(&D[6]);
 }
 
-void push_up(){
+void push_down(){
+	direction = DOWN;
     pin_set(&D[5]);
     pin_clear(&D[6]);
 
 }
 
-void push_down(){
+void push_up(){
+	direction = UP;
     pin_clear(&D[5]);
     pin_set(&D[6]);
 
@@ -42,24 +44,24 @@ void push_down(){
 
 void switch_state() {
 
-	switch2 = sw_read(&sw1);
-	switch1 = pin_read(&D[13]);
+	switchPressed = !sw_read(&sw1);
+	gyro = pin_read(&D[13]);
+	
+	if (gyro){
+		led_on(&led1);
+	}
+	else {
+		led_off(&led1);
+	}
+
 	if (direction == UP) {
-		if (!switch2 || !switch1) {
-			direction= DOWN;
-			push_up();
+		if (!switchPressed && gyro) {
+			push_down();
 
 		}
 	}
-	if (direction ==DOWN){
-		if (switch2|| switch1){
-			direction = UP;
-			push_down();
-		}
-	}
-	if (direction == OFF){
-		if (switch2|| switch1) {
-			direction = UP;
+	if (direction == DOWN || direction == OFF){
+		if (switchPressed){
 			push_up();
 		}
 	}
