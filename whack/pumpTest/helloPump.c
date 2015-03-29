@@ -8,8 +8,19 @@
 #include "uart.h"
 
 
-volatile uint16_t switchPressed;
+volatile uint16_t downTimePassed = 0;
+volatile uint16_t upTimePassed = 0;
 volatile uint16_t gyro;
+volatile uint16_t moleHit;
+uint16_t score;
+
+double downTime;
+double upTime;
+
+double gamePeriod = 0.1;
+double gameTime;
+
+int compressed = 0;
 
 uint16_t c;
 uint16_t d;
@@ -32,6 +43,8 @@ void push_down(){
 	direction = DOWN;
     pin_set(&D[5]);
     pin_clear(&D[6]);
+    downTime = gameTime;
+    downTimePassed = 0;
 
 }
 
@@ -39,12 +52,13 @@ void push_up(){
 	direction = UP;
     pin_clear(&D[5]);
     pin_set(&D[6]);
+    upTime = gameTime;
+    upTimePassed = 0;
 
 }
 
 void switch_state() {
-
-	switchPressed = !sw_read(&sw1);
+	moleHit = !pin_read(&D[12]);
 	gyro = pin_read(&D[13]);
 	
 	if (gyro){
@@ -55,13 +69,13 @@ void switch_state() {
 	}
 
 	if (direction == UP) {
-		if (!switchPressed && gyro) {
+		if (upTimePassed || gyro || moleHit) {
 			push_down();
 
 		}
 	}
 	if (direction == DOWN || direction == OFF){
-		if (switchPressed){
+		if (downTimePassed){
 			push_up();
 		}
 	}
@@ -82,10 +96,40 @@ void setup_motor() {
 	pin_set(&D[2]);
 	pin_clear(&D[3]);
 	pin_set(&D[4]);
+
 	pin_digitalOut(&D[5]);
 	pin_digitalOut(&D[6]);
+ 	pin_digitalIn(&D[13]);
+ 	pin_digitalIn(&D[12]);
 	turn_Off();
 }
+
+void check_Hit() {
+	moleHit = !pin_read(&D[12]);
+	// printf("%d\n", moleHit);
+	if (!compressed && moleHit) {
+		score = score + 1;
+		compressed = 1;
+		led_on(&led2);
+		printf("%d\n", score);
+	}
+	else if (compressed && !moleHit) {
+		compressed = 0;
+		led_off(&led2);
+
+	}
+
+}
+
+void gameLogic(){
+	if ((gameTime - downTime) > 3.0) {
+		downTimePassed = 1;
+	}
+	if ((gameTime - upTime) > 3.0) {
+		upTimePassed = 1;
+	}
+}
+
 int16_t main(void) {
 	init_pin();
 	init_clock();
@@ -96,15 +140,25 @@ int16_t main(void) {
 	setup_pins();
 	setup_motor();
 
- 	pin_digitalIn(&D[13]);
+// Main Loop
+	timer_setPeriod(&timer1, gamePeriod);
+	timer_start(&timer1);
 
-	timer_setPeriod(&timer2, 0.01);
+// Reading Loop
+	timer_setPeriod(&timer2, 0.001);
 	timer_start(&timer2);
 
+
 	while (1) {
+		if (timer_flag(&timer1)) {
+			timer_lower(&timer1);
+			gameTime = gameTime + gamePeriod;
+			gameLogic();
+		}
 		if (timer_flag(&timer2)) {
 			timer_lower(&timer2);
 			switch_state();
+			check_Hit();
 		}
 	}
 }

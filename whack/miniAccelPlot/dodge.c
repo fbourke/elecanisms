@@ -78,7 +78,7 @@ int16_t main(void) {
     	uint16_t threshold = 10000;
 		mpu_readRegs(MPU_GYRO_XOUT_H, &values, 6);
 		int x = 256*values[0] + values[1];
-        int y = 256*values[2] + values[3];
+        int y = 256*values[2] + values[3]; 
         int z = 256*values[4] + values[5];
 
         x = x>32767 ? x - 65536 : x;
