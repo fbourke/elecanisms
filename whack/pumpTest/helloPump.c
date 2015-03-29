@@ -16,8 +16,9 @@ uint16_t score;
 
 double downTime;
 double upTime;
+uint16_t value;
 
-double gamePeriod = 0.1;
+double gamePeriod = 0.01;
 double gameTime;
 
 int compressed = 0;
@@ -26,25 +27,35 @@ uint16_t c;
 uint16_t d;
 
 typedef enum {
+PLAYING,
+WAITING
+	
+} GameState;
+
+volatile GameState gameState = WAITING;
+
+typedef enum {
 UP,
 DOWN,
 OFF
 } Direction;
 
-
 volatile Direction direction = OFF;
 
 void turn_Off() {
+	direction = OFF;
 	pin_clear(&D[5]);
 	pin_clear(&D[6]);
+	printf("off \n");
 }
 
 void push_down(){
 	direction = DOWN;
-    pin_set(&D[5]);
     pin_clear(&D[6]);
+    pin_set(&D[5]);
     downTime = gameTime;
     downTimePassed = 0;
+    printf("down \n");
 
 }
 
@@ -54,7 +65,17 @@ void push_up(){
     pin_set(&D[6]);
     upTime = gameTime;
     upTimePassed = 0;
+    printf("up \n");
 
+}
+
+void waiting() {
+	value = pin_read(&A[0]) >> 6;
+	if (value > 158) {
+		gameState = PLAYING;
+		push_up();
+		gameTime = 0.0;
+	}
 }
 
 void switch_state() {
@@ -69,14 +90,23 @@ void switch_state() {
 	}
 
 	if (direction == UP) {
+		check_Hit();
 		if (upTimePassed || gyro || moleHit) {
 			push_down();
 
 		}
 	}
-	if (direction == DOWN || direction == OFF){
+	if (direction == OFF) {
 		if (downTimePassed){
 			push_up();
+		}
+	}
+	if (direction == DOWN ){
+		if (downTimePassed){
+			push_up();
+		}
+		if ((gameTime - downTime) > 0.5) {
+			turn_Off();
 		}
 	}
 }
@@ -104,6 +134,13 @@ void setup_motor() {
 	turn_Off();
 }
 
+void reset_game() {
+	gameState = WAITING;
+	score = 0;
+	turn_Off();
+	
+}
+
 void check_Hit() {
 	moleHit = !pin_read(&D[12]);
 	// printf("%d\n", moleHit);
@@ -112,6 +149,9 @@ void check_Hit() {
 		compressed = 1;
 		led_on(&led2);
 		printf("%d\n", score);
+		if (score >= 10) {
+			reset_game();
+		}
 	}
 	else if (compressed && !moleHit) {
 		compressed = 0;
@@ -128,6 +168,7 @@ void gameLogic(){
 	if ((gameTime - upTime) > 3.0) {
 		upTimePassed = 1;
 	}
+
 }
 
 int16_t main(void) {
@@ -145,20 +186,26 @@ int16_t main(void) {
 	timer_start(&timer1);
 
 // Reading Loop
-	timer_setPeriod(&timer2, 0.001);
+	timer_setPeriod(&timer2, 0.01);
 	timer_start(&timer2);
-
+	
 
 	while (1) {
-		if (timer_flag(&timer1)) {
-			timer_lower(&timer1);
-			gameTime = gameTime + gamePeriod;
-			gameLogic();
-		}
-		if (timer_flag(&timer2)) {
-			timer_lower(&timer2);
-			switch_state();
-			check_Hit();
+		if (gameState == WAITING) {
+			if (timer_flag(&timer1)) {
+				timer_lower(&timer1);
+				waiting();
+			}
+		}else if (gameState == PLAYING) {
+			if (timer_flag(&timer1)) {
+				timer_lower(&timer1);
+				gameTime = gameTime + gamePeriod;
+				gameLogic();
+			}
+			if (timer_flag(&timer2)) {
+				timer_lower(&timer2);
+				switch_state();
+			}
 		}
 	}
 }
