@@ -12,7 +12,7 @@ volatile uint16_t downTimePassed = 0;
 volatile uint16_t upTimePassed = 0;
 volatile uint16_t gyro;
 volatile uint16_t moleHit;
-uint16_t score;
+int16_t score;
 
 double downTime;
 double upTime;
@@ -27,9 +27,9 @@ uint16_t c;
 uint16_t d;
 
 typedef enum {
-PLAYING,
+EASY,
+HARD,
 WAITING
-	
 } GameState;
 
 volatile GameState gameState = WAITING;
@@ -70,30 +70,61 @@ void push_up(){
 }
 
 void waiting() {
-	value = pin_read(&A[0]) >> 6;
-	if (value > 158) {
-		gameState = PLAYING;
+	uint16_t coinVoltage = pin_read(&A[5]) >> 6;
+	// printf("%d\n", coinVoltage);
+	uint16_t coinInserted = coinVoltage > 159;
+	if (coinInserted) {
+		gameState = EASY;
 		push_up();
 		gameTime = 0.0;
 	}
 }
 
+uint16_t mole_hit() {
+	moleHit = !pin_read(&D[10]);
+	if (!compressed && moleHit) {
+		compressed = 1;
+		return 1;
+	}
+	else if (compressed && !moleHit) {
+		compressed = 0;
+		led_off(&led2);
+	}
+	return 0;
+}
+
 void switch_state() {
-	moleHit = !pin_read(&D[12]);
 	gyro = pin_read(&D[13]);
 	
 	if (gyro){
 		led_on(&led1);
+		printf(".");
 	}
 	else {
 		led_off(&led1);
 	}
 
 	if (direction == UP) {
-		check_Hit();
-		if (upTimePassed || gyro || moleHit) {
+		if (mole_hit()) {
+			score += 1;
+			printf("%d\n", score);
+			if (score >= 5) {
+				printf("YOU WIN!\n");
+				reset_game();
+			}
+			if (gameState == EASY && score >= 3) {
+				gameState = HARD;
+				printf("Going to hardmode.\n");
+			}
 			push_down();
-
+		} else if (((gameState == HARD) && gyro) || ((gameState == EASY) && upTimePassed)) {
+			score -= 1;
+			printf("%d\n", score);
+			if (score <= -2) {
+				printf("YOU LOSE\n");
+				reset_game();
+			}
+			push_down();
 		}
 	}
 	if (direction == OFF) {
@@ -101,8 +132,8 @@ void switch_state() {
 			push_up();
 		}
 	}
-	if (direction == DOWN ){
-		if (downTimePassed){
+	if (direction == DOWN) {
+		if (downTimePassed) {
 			push_up();
 		}
 		if ((gameTime - downTime) > 0.5) {
@@ -111,11 +142,10 @@ void switch_state() {
 	}
 }
 
-
 void setup_pins() {
 	int i;
 	for (i = 0; i<6; i++) {
-	pin_analogIn(&A[i]);
+		pin_analogIn(&A[i]);
 	}
 }
 
@@ -141,26 +171,6 @@ void reset_game() {
 	
 }
 
-void check_Hit() {
-	moleHit = !pin_read(&D[12]);
-	// printf("%d\n", moleHit);
-	if (!compressed && moleHit) {
-		score = score + 1;
-		compressed = 1;
-		led_on(&led2);
-		printf("%d\n", score);
-		if (score >= 10) {
-			reset_game();
-		}
-	}
-	else if (compressed && !moleHit) {
-		compressed = 0;
-		led_off(&led2);
-
-	}
-
-}
-
 void gameLogic(){
 	if ((gameTime - downTime) > 3.0) {
 		downTimePassed = 1;
@@ -168,7 +178,6 @@ void gameLogic(){
 	if ((gameTime - upTime) > 3.0) {
 		upTimePassed = 1;
 	}
-
 }
 
 int16_t main(void) {
@@ -196,7 +205,7 @@ int16_t main(void) {
 				timer_lower(&timer1);
 				waiting();
 			}
-		}else if (gameState == PLAYING) {
+		} else {
 			if (timer_flag(&timer1)) {
 				timer_lower(&timer1);
 				gameTime = gameTime + gamePeriod;

@@ -1,7 +1,6 @@
-import os, sys
+import os, sys, platform
 sys.path.append(os.path.relpath("../../site_scons"))
 import bootloadercmd as b
-
 
 # Type the filename you want, e.g. blink
 # Don't include the .c tag
@@ -15,7 +14,10 @@ def setup_PIC_env():
                     CFLAGS = '-g -omf=coff -x c -mcpu=$PIC', 
                     LINKFLAGS = '-omf=coff -mcpu=$PIC -Wl,--script="app_p24FJ128GB206.gld"', 
                     CPPPATH = '../../lib')
-  env.PrependENVPath('PATH', '/opt/microchip/xc16/v1.24/bin/')
+  if platform.system() == 'Linux':
+    env.PrependENVPath('PATH', '/opt/microchip/xc16/v1.24/bin')
+  elif platform.system() == 'Darwin':
+    env.PrependENVPath('PATH', '/Applications/microchip/xc16/v1.24/bin')
   bin2hex = Builder(action = 'xc16-bin2hex $SOURCE -omf=coff',
                     suffix = 'hex', 
                     src_suffix = 'cof')
