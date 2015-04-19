@@ -1,6 +1,8 @@
-
+import os, sys
+lib_path = os.path.abspath(os.path.join('..', 'spitest'))
+sys.path.append(lib_path)
 import spitest
-import sys, time
+import time
 
 foo = spitest.spitest()
 foo.xl_writeReg(0x2D, 0x02)
@@ -24,4 +26,3 @@ while 1:
     t0 = time.clock()
     while time.clock()<t0+0.05:
         pass
-

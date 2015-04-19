@@ -74,17 +74,26 @@ def load_function(target, source, env):
       print('FAILED to write to device. Is it plugged in?')
     return None
 
-load = Builder(action=load_function,
-               suffix = 'none',
-               src_suffix = 'hex')
+def append_builders(env):
+  load = Builder(action=load_function,
+                 suffix = 'none',
+                 src_suffix = 'hex')
 
-env.Append(BUILDERS = {'Load' : load})
+  env.Append(BUILDERS = {'Load' : load})
+  return env
+
+########## Actually runs the scons code ##########
+env = setup_PIC_env()
 
 env.Program('blink', ['blink.c',
                       '../lib/timer.c',
                       '../lib/pin.c',
                       '../lib/spi.c', 
                       'xl.c'])
+
+print('Creating builder to load hex file via bootloader...')
+append_builders(env)
+
 env.Hex('blink')
 env.List('blink')
 env.Load('blink')

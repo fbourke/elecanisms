@@ -34,4 +34,3 @@ int16_t main(void) {
 //        pin_write(led2, !pin_read(sw1));
     }
 }
-

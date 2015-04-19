@@ -103,21 +103,21 @@ void __attribute__((interrupt, auto_psv)) _U2RXInterrupt(void) {
     __serviceRxInterrupt(&uart2);
 }
 
-void __attribute__((interrupt, auto_psv)) _U3TXInterrupt(void) {
-    __serviceTxInterrupt(&uart3);
-}
+// void __attribute__((interrupt, auto_psv)) _U3TXInterrupt(void) {
+//     __serviceTxInterrupt(&uart3);
+// }
 
-void __attribute__((interrupt, auto_psv)) _U3RXInterrupt(void) {
-    __serviceRxInterrupt(&uart3);
-}
+// void __attribute__((interrupt, auto_psv)) _U3RXInterrupt(void) {
+//     __serviceRxInterrupt(&uart3);
+// }
 
-void __attribute__((interrupt, auto_psv)) _U4TXInterrupt(void) {
-    __serviceTxInterrupt(&uart4);
-}
+// void __attribute__((interrupt, auto_psv)) _U4TXInterrupt(void) {
+//     __serviceTxInterrupt(&uart4);
+// }
 
-void __attribute__((interrupt, auto_psv)) _U4RXInterrupt(void) {
-    __serviceRxInterrupt(&uart4);
-}
+// void __attribute__((interrupt, auto_psv)) _U4RXInterrupt(void) {
+//     __serviceRxInterrupt(&uart4);
+// }
 
 int16_t write(int16_t handle, void *buffer, uint16_t len) {
     int16_t i;
