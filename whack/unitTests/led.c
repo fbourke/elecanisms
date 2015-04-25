@@ -6,26 +6,31 @@
 #include "pin.h"
 
 typedef enum {
-    LIGHT,
-    NOLIGHT
+    LIT,
+    UNLIT
 } LEDState;
 
+LEDState allLEDS = LIT;
+
+_PIN* pin_SData = &D[5];
+_PIN* pin_LE = &A[4];
+_PIN* pin_CLK = &D[6];
+_PIN* pin_OE = &D[7];
 
 uint16_t LEDStates = 0;
 
 int count = 0;
 
-
 void delay(){
-   int c = 1;
-
-   for ( c = 1 ; c <= 300 ; c++ ){ } 
+    int c = 1;
+    for ( c = 1 ; c <= 300 ; c++ ){
+    
+    } 
 
 }
 
 void longDelay(){
    int c = 1, d = 1;
-
    for ( c = 1 ; c <= 32000 ; c++ ){ 
         for ( d = 1 ; d <= 30 ; d++ ){}
     }
@@ -33,29 +38,52 @@ void longDelay(){
 
 void writeLEDState(int LEDNumber, LEDState state) {
     uint16_t bitMask;
-    if (state == LIGHT) {
+    if (state == LIT) {
         bitMask = 1<<LEDNumber;
         LEDStates = LEDStates | bitMask;
     }
-    if (state == NOLIGHT) {
+    if (state == UNLIT) {
         bitMask = ~(1<<LEDNumber); 
         LEDStates = LEDStates & bitMask;
     }
 }
 
 void setup_pins() {
-    pin_digitalOut(&D[5]);
-    pin_digitalOut(&D[6]);
-    pin_digitalOut(&D[7]);
-    pin_digitalOut(&A[0]);
+    pin_digitalOut(pin_SData);
+    pin_digitalOut(pin_LE);
+    pin_digitalOut(pin_CLK);
+    pin_digitalOut(pin_OE);
+    pin_clear(pin_OE);
+    pin_clear(pin_CLK);
+    pin_clear(pin_LE);
+    pin_clear(pin_SData);
 }
 
 void pulseClock(){
-    pin_clear(&D[6]);
     delay();
-    pin_set(&D[6]);
+    pin_set(pin_CLK);
     delay();
-    pin_clear(&D[6]);
+    pin_clear(pin_CLK);
+}
+
+void pulseLatch(){
+    delay();
+    pin_set(pin_LE);
+    delay();
+    pin_clear(pin_LE);
+}
+
+void updateLEDs() {
+        for(count = 0; count < 48; count++) {
+            if (allLEDS == LIT && count < 16) {
+                // pin_write(pin_SData, LEDStates & (1 << count));
+                pin_set(pin_SData);
+            } else {
+                pin_clear(pin_SData);
+            }
+            pulseClock();
+        }
+        pulseLatch();
 }
 
 int16_t main(void) {
@@ -65,26 +93,14 @@ int16_t main(void) {
     init_pin();
     setup_pins();
 
-    // Sdat = D5
-    // LE = A0 sut
-    // CLK = D6 clock input
-    //  OE = D7 when low, output drivers enabled
-
-    while (1) {        
-        writeLEDState(8, LIGHT);
-        for(count = 0; count < 48; count++){
-            pin_write(&D[5],LEDStates & (1<<count));
-            if (count == 47){
-                pin_clear(&D[7]);
-                pin_set(&A[0]);
-            } 
-            pulseClock();
-            pin_set(&D[7]);
-        }
-        delay();
-        pin_clear(&A[0]);
+    while (1) {
+        allLEDS = LIT;
+        // writeLEDState(0, LIT);
+        updateLEDs();
         longDelay();
-        pin_clear(&D[7]);
+        // writeLEDState(0, UNLIT);
+        allLEDS = UNLIT;
+        updateLEDs();
         longDelay();
     }
 }
