@@ -16,8 +16,6 @@ uint8_t MPU_ACCEL_ZOUT_L = 0x40;
 
 uint8_t MPU_GYRO_CONFIG = 0x1B;
 
-
-
 uint8_t MPU_GYRO_XOUT_H = 0x43;
 uint8_t MPU_GYRO_XOUT_L = 0x44;
 uint8_t MPU_GYRO_YOUT_H = 0x45;

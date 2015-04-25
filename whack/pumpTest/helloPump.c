@@ -7,12 +7,15 @@
 #include "oc.h"
 #include "uart.h"
 
-
 volatile uint16_t downTimePassed = 0;
 volatile uint16_t upTimePassed = 0;
 volatile uint16_t gyro;
 volatile uint16_t moleHit;
 int16_t score;
+
+struct {
+	// mole struct
+}
 
 double downTime;
 double upTime;
@@ -29,10 +32,10 @@ uint16_t d;
 typedef enum {
 EASY,
 HARD,
-WAITING
+COIN_NEEDED
 } GameState;
 
-volatile GameState gameState = WAITING;
+volatile GameState gameState = COIN_NEEDED;
 
 typedef enum {
 UP,
@@ -98,7 +101,6 @@ void switch_state() {
 	
 	if (gyro){
 		led_on(&led1);
-		printf(".");
 	}
 	else {
 		led_off(&led1);
@@ -165,10 +167,9 @@ void setup_motor() {
 }
 
 void reset_game() {
-	gameState = WAITING;
+	gameState = COIN_NEEDED;
 	score = 0;
 	turn_Off();
-	
 }
 
 void gameLogic(){
@@ -197,10 +198,9 @@ int16_t main(void) {
 // Reading Loop
 	timer_setPeriod(&timer2, 0.01);
 	timer_start(&timer2);
-	
 
 	while (1) {
-		if (gameState == WAITING) {
+		if (gameState == COIN_NEEDED) {
 			if (timer_flag(&timer1)) {
 				timer_lower(&timer1);
 				waiting();
