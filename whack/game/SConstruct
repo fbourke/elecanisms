@@ -56,7 +56,11 @@ env.Program(file_to_run, [file_to_run+'.c',
                         '../../lib/spi.c',
                         '../../lib/uart.c',
                         '../../lib/ui.c',
-                        '../../lib/timer.c'])
+                        '../../lib/timer.c',
+                        '../../lib/mole.c',
+                        '../../lib/led.c',
+                        '../../lib/schedule.c'
+                        ])
 # Left out imu.c, usb.c
 
 print('Creating builder to load hex file via bootloader...')

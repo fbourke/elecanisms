@@ -27,34 +27,19 @@ int16_t main(void) {
     // 5 Orange in
     // 6 Righty in
     // 7 unwired 
-
-
-
     while (1) {
         count = 0;
         writeValveState(0, OPEN);
-        for(count = 0; count < 8; count++){
-            pin_write(&D[3],valveStates & (1<<count));
-            mole_pulseClock();
-        }
+        updateValves();
         mole_longDelay();
         writeValveState(0, CLOSED);
-          for(count = 0; count < 8; count++){
-            pin_write(&D[3],valveStates & (1<<count));
-            mole_pulseClock();
-        }
+        updateValves();
         mole_longDelay();
-                writeValveState(1, OPEN);
-        for(count = 0; count < 8; count++){
-            pin_write(&D[3],valveStates & (1<<count));
-            mole_pulseClock();
-        }
+        writeValveState(1, OPEN);
+        updateValves();
         mole_longDelay();
         writeValveState(1, CLOSED);
-          for(count = 0; count < 8; count++){
-            pin_write(&D[3],valveStates & (1<<count));
-            mole_pulseClock();
-        }
+        updateValves();
         mole_longDelay();
     }
 }

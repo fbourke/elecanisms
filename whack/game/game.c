@@ -6,12 +6,13 @@
 #include "pin.h"
 #include "oc.h"
 #include "uart.h"
+#include "mole.h"
+#include "schedule.h"
 
 volatile uint16_t gyro;
 int16_t score;
 
 double gamePeriod = 0.01;
-double gameTime;
 
 typedef enum {
 EASY,
@@ -20,33 +21,6 @@ COIN_NEEDED
 } GameState;
 
 volatile GameState gameState = COIN_NEEDED;
-
-void turn_Off(Mole* mole) {
-    mole->direction = OFF;
-    pin_clear(mole->solenoidIn);
-    pin_clear(mole->solenoidOut);
-    printf("off \n");
-}
-
-void push_down(Mole* mole) {
-    mole->direction = DOWN;
-    pin_set(mole->solenoidIn);
-    pin_clear(mole->solenoidOut);
-    mole->downTime = gameTime;
-    mole->downTimePassed = 0;
-    printf("down \n");
-
-}
-
-void push_up(Mole* mole) {
-    mole->direction = UP;
-    pin_clear(mole->solenoidIn);
-    pin_set(mole->solenoidOut);
-    mole->upTime = gameTime;
-    mole->upTimePassed = 0;
-    printf("up \n");
-
-}
 
 void waiting() {
     uint16_t coinVoltage = pin_read(&A[5]) >> 6;
@@ -60,7 +34,14 @@ void waiting() {
 }
 
 uint16_t button_hit(Button* button) {
-    button->state = !pin_read(button->pin);
+    printf("button: %d\n", &button);
+    printf("getting button state\n");
+    _PIN* pin = button->pin;
+    printf("got pin %d\n", button->pin);
+    int c;
+    for (c=0; c<32000; c++) {}
+    uint16_t read = !pin_read(pin);
+    button->state = read;
     if (!button->prevState && button->state) {
         button->prevState = 1;
         return 1;
@@ -69,6 +50,8 @@ uint16_t button_hit(Button* button) {
         button->prevState = 0;
         led_off(&led2);
     }
+    printf("herpderp\n");
+    for (c=0; c<32000; c++) {}
     return 0;
 }
 
@@ -94,6 +77,11 @@ void switch_state() {
     int i;
     for (i=0; i<3; i++) {
         Mole* mole = moles[i];
+        if (button_hit(buttons[i])) {
+            printf("button %d is hit\n", i);
+        } else {
+            printf("button %d is not hit\n", i);
+        }
         if (mole->direction == UP) {
             if (button_hit(mole->button)) {
                 score += 1;
@@ -145,6 +133,7 @@ void updateTimes() {
     int i;
     Mole* mole;
     for (i=0; i<3; i++) {
+        printf("update %d\n", i);
         mole = moles[i];
         gameTime = gameTime + gamePeriod;
         if ((gameTime - mole->downTime) > 3.0) {
@@ -154,6 +143,7 @@ void updateTimes() {
             mole->upTimePassed = 1;
         }
     }
+    printf("done updating\n");
 }
 
 int16_t main(void) {
@@ -165,6 +155,9 @@ int16_t main(void) {
     init_oc();
     setup_pins();
     init_moles();
+
+    printf("begin\n");
+    printf("D: %d\n", &D[0]);
 
 // Main Loop
     timer_setPeriod(&timer1, gamePeriod);
