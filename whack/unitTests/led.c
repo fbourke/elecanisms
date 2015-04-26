@@ -74,16 +74,19 @@ void pulseLatch(){
 }
 
 void updateLEDs() {
-        for(count = 0; count < 48; count++) {
-            if (allLEDS == LIT && count < 16) {
-                // pin_write(pin_SData, LEDStates & (1 << count));
-                pin_set(pin_SData);
-            } else {
-                pin_clear(pin_SData);
-            }
-            pulseClock();
+    pin_set(pin_OE);    
+    for(count = 0; count < 48; count++) {
+        if (allLEDS == LIT && count < 16) {
+            // pin_write(pin_SData, LEDStates & (1 << count));
+            pin_set(pin_SData);
+        } else {
+            pin_clear(pin_SData);
         }
-        pulseLatch();
+        pulseClock();
+    }
+    pulseLatch();
+    delay();
+    pin_clear(pin_OE);
 }
 
 int16_t main(void) {
