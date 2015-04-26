@@ -55,6 +55,8 @@ env.Program(file_to_run, [file_to_run+'.c',
                         '../../lib/oc.c',
                         '../../lib/pin.c',
                         '../../lib/spi.c',
+                        '../../lib/mole.c',
+                        '../../lib/led.c',
                         '../../lib/uart.c',
                         '../../lib/ui.c',
                         '../../lib/timer.c'])
