@@ -105,7 +105,7 @@ void updateLEDs() {
             pin_clear(pin_SData);
         }
         pulseClock();
-    }
+    } 
     pulseLatch();
     delay();
     pin_clear(pin_OE);
@@ -120,10 +120,10 @@ int16_t main(void) {
 
     while (1) {
         // allLEDS = LIT;
-        writeLEDState(0, LIT);
+        writeLEDState(15, LIT);
         updateLEDs();
         longDelay();
-        writeLEDState(0, UNLIT);
+        writeLEDState(15, UNLIT);
         // allLEDS = UNLIT;
         updateLEDs();
         longDelay();
