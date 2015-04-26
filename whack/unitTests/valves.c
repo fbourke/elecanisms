@@ -7,8 +7,8 @@
 #include "uart.h"
 
 typedef enum {
-    OPEN,
-    CLOSED
+OPEN,
+CLOSED
 } ValveState;
 
 
