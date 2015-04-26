@@ -67,9 +67,9 @@ void pulseClock(){
 }
 
 void pulseLatch(){
-    longDelay();
+    delay();
     pin_set(pin_LE);
-    longDelay();
+    delay();
     pin_clear(pin_LE);
 }
 
