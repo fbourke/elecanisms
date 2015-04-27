@@ -17,6 +17,8 @@ int16_t score;
 double gamePeriod = 0.01;  // seconds
 double upOpenTime = 1.0;   // seconds
 double downOpenTime = 0.3; // seconds
+double betweenUpTime = 1.0;
+double lastUpTime = 64000.0;
 
 typedef enum {
 NICE,
@@ -54,6 +56,21 @@ uint16_t button_hit(Button* button) {
         button->prevState = 0;
     }
     return 0;
+}
+
+void beginGame() {
+    writeLEDState(PERIPHERAL, 0, UNLIT);
+    writeLEDState(PERIPHERAL, 1, UNLIT);
+    updateLEDs();
+    gameState = NICE;
+    score = 0;
+    printf("starting game\n");
+    int i; Mole* mole;
+    for (i=0; i<3; i++) {
+        mole = &moles[i];
+        mole->downWait = (double) (mole->number);
+    }
+    gameTime = 0.0;
 }
 
 void waitingForMode() {
@@ -104,21 +121,6 @@ void reset_game() {
     }
 }
 
-void beginGame() {
-    writeLEDState(PERIPHERAL, 0, UNLIT);
-    writeLEDState(PERIPHERAL, 1, UNLIT);
-    updateLEDs();
-    gameState = NICE;
-    score = 0;
-    printf("starting game\n");
-    int i; Mole* mole;
-    for (i=0; i<3; i++) {
-        mole = &moles[i];
-        mole->downWait = (double) (mole->number);
-    }
-    gameTime = 0.0;
-}
-
 void updateScore(int increment) {
     score += increment;
     if (increment > 0 && score >= 0) {
@@ -136,10 +138,10 @@ void updateScore(int increment) {
     } else if (score <= 0) {
         score = 0;
     }
-    if (gameState == NICE && score >= 3) {
-        gameState = EVIL;
-        printf("Going to hardmode.\n");
-    }
+    // if (gameState == NICE && score >= 3) {
+    //     gameState = EVIL;
+    //     printf("Going to hardmode.\n");
+    // }
 }
 
 void moleHit(Mole* mole) {
@@ -152,6 +154,12 @@ void moleMissed(Mole* mole) {
     updateScore(-1);
     push_down(mole);
     scheduleUp(mole);
+}
+
+void molePop(Mole* mole) {
+    push_up(mole);
+    scheduleDown(mole);
+    lastUpTime = gameTime;
 }
 
 void switch_state() {
@@ -167,9 +175,9 @@ void switch_state() {
                 close_valves(mole);
             }
         } else if (mole->direction == DOWN) {
-            if (mole->downTimePassed) {
-                push_up(mole);
-                scheduleDown(mole);
+            if (mole->downTimePassed 
+                /* && (gameTime - lastUpTime) > betweenUpTime */) {
+                    molePop(mole);
             } else if (mole->valveStatus == THROUGH
                 && (gameTime - mole->downTime) > downOpenTime) {
                 // printf("down: %f - %f > %f\n", gameTime, mole->downTime, downOpenTime);
@@ -272,7 +280,8 @@ int16_t main(void) {
                 timer_lower(&timer1);
                 updateTimes();
                 switch_state();
-                updateValves();
+                // updateValves();
+                updateLEDs();
             }
             if (timer_flag(&timer2)) {
                 timer_lower(&timer2);

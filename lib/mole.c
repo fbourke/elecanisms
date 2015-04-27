@@ -5,7 +5,7 @@
 #include "schedule.h"
 #include <math.h>
 
-double WAIT_MAX = 64000.0; 
+const double WAIT_MAX = 64000.0; 
 
 Button moleButtons[3];
 Button modeButtons[2];
@@ -151,6 +151,7 @@ void updateValves() {
         mole_pulseClock();
     }
     mole_delay();
+    pin_write(moleSRData, 0);
 }
 
 void mole_pulseClock(){

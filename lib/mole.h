@@ -3,7 +3,7 @@
 #define _MOLE_H_
 
 extern volatile uint16_t valveStates;
-extern double WAIT_MAX;
+extern const double WAIT_MAX;
 
 typedef struct Button
 {
