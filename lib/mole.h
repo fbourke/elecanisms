@@ -3,6 +3,7 @@
 #define _MOLE_H_
 
 extern volatile uint16_t valveStates;
+extern double WAIT_MAX;
 
 typedef struct Button
 {
@@ -23,6 +24,11 @@ DOWN,
 OFF
 } MoleDirection;
 
+typedef enum {
+CUTOFF,
+THROUGH
+} MoleValveStatus;
+
 typedef struct Mole {
     int number;
     uint16_t solenoidIn;
@@ -30,16 +36,22 @@ typedef struct Mole {
     Button* button;
     double upTime;
     double downTime;
+    double upWait;
+    double downWait;
     uint16_t upTimePassed;
     uint16_t downTimePassed;
     MoleDirection direction;
+    MoleValveStatus valveStatus;
 } Mole;
 
-extern Button* buttons[3];
-extern Mole* moles[3];
+extern Button buttons[3];
+extern Mole moles[3];
 
 void init_moles(void);
-void turn_Off(Mole* mole);
+void mole_init(Mole* mole, Button* button, int number, uint16_t solenoidIn, uint16_t solenoidOut);
+void button_init(Button* button, int pin);
+void turn_off(Mole* mole);
+void close_valves(Mole* mole);
 void push_down(Mole* mole);
 void push_up(Mole* mole);
 
@@ -47,6 +59,7 @@ void mole_delay();
 void mole_longDelay();
 void init_mole_SR();
 void mole_pulseClock();
+void updateValves();
 void writeValveState(int valveNumber, ValveState state);
 
 #endif

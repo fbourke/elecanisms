@@ -14,7 +14,7 @@ int16_t main(void) {
     init_timer();
     init_uart();
     init_pin();
-    init_mole();
+    init_moles();
     int count = 0;
     // Data = D3
     // Clock = D4
@@ -28,18 +28,33 @@ int16_t main(void) {
     // 6 Righty in
     // 7 unwired 
     while (1) {
-        count = 0;
-        writeValveState(0, OPEN);
-        updateValves();
-        mole_longDelay();
-        writeValveState(0, CLOSED);
-        updateValves();
-        mole_longDelay();
-        writeValveState(1, OPEN);
-        updateValves();
-        mole_longDelay();
-        writeValveState(1, CLOSED);
-        updateValves();
-        mole_longDelay();
+        int i;
+        Mole* mole;
+        for (i=0; i<3; i++) {
+            mole = &moles[i];
+            push_up(mole);
+            // writeValveState(mole->solenoidIn, OPEN);
+            // writeValveState(mole->solenoidOut, CLOSED);
+            // updateValves();
+            mole_longDelay();
+            // writeValveState(mole->solenoidIn, CLOSED);
+            // writeValveState(mole->solenoidOut, CLOSED);
+            // updateValves();
+            turn_Off(mole);
+            mole_longDelay();
+        }
+        for (i=0; i<3; i++) {
+            mole = &moles[i];
+            // writeValveState(mole->solenoidIn, CLOSED);
+            // writeValveState(mole->solenoidOut, OPEN);
+            // updateValves();
+            push_down(mole);
+            mole_longDelay();
+            // writeValveState(mole->solenoidIn, CLOSED);
+            // writeValveState(mole->solenoidOut, CLOSED);
+            // updateValves();
+            turn_Off(mole);
+            mole_longDelay();
+        }
     }
 }
