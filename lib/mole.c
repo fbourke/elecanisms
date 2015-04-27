@@ -7,7 +7,8 @@
 
 double WAIT_MAX = 64000.0; 
 
-Button buttons[3];
+Button moleButtons[3];
+Button modeButtons[2];
 Mole moles[3];
 
 volatile uint16_t valveStates = 0;
@@ -17,13 +18,15 @@ _PIN* moleSRClock = &D[4];
 
 void init_moles(void) {
 
-    button_init(&buttons[0], 0);
-    button_init(&buttons[1], 2);
-    button_init(&buttons[2], 1);
+    button_init(&moleButtons[0], 0);
+    button_init(&moleButtons[1], 2);
+    button_init(&moleButtons[2], 1);
+    button_init(&modeButtons[0], 8);
+    button_init(&modeButtons[1], 9);
 
-    mole_init(&moles[0], &buttons[0], 0, 0, 1);
-    mole_init(&moles[1], &buttons[1], 1, 5, 4);
-    mole_init(&moles[2], &buttons[2], 2, 6, 2);
+    mole_init(&moles[0], &moleButtons[0], 0, 0, 1);
+    mole_init(&moles[1], &moleButtons[1], 1, 5, 4);
+    mole_init(&moles[2], &moleButtons[2], 2, 6, 2);
 
     init_mole_SR();
 }
@@ -60,10 +63,10 @@ void printMole(Mole* mole) {
     printf("\n");
 }
 
-// void turn_off(Mole* mole) {
-//     mole->direction = OFF;
-//     close_valves(mole);
-// }
+void turn_off(Mole* mole) {
+    mole->direction = OFF;
+    close_valves(mole);
+}
 
 void close_valves(Mole* mole) {
     mole->valveStatus = CUTOFF;
@@ -74,17 +77,32 @@ void close_valves(Mole* mole) {
     printMole(mole);
 }
 
-void push_down(Mole* mole) {
+
+void setMoleDown(Mole* mole) {
     mole->direction = DOWN;
     mole->valveStatus = THROUGH;
     writeValveState(mole->solenoidIn, CLOSED);
     writeValveState(mole->solenoidOut, OPEN);
-    updateValves();
     mole->downTime = gameTime;
     mole->downTimePassed = 0;
-    mole->downWait = (double) WAIT_MAX;
+    mole->downWait = WAIT_MAX;
     printf("lowering mole %d\n", mole->number);
     printMole(mole);
+}
+
+void push_down(Mole* mole) {
+    setMoleDown(mole);
+    updateValves();
+}
+
+void allMolesDown(void) {
+    int i;
+    Mole* mole;
+    for (i=0; i<3; i++) {
+        mole = &moles[i];
+        setMoleDown(mole);
+    }
+    updateValves();
 }
 
 void push_up(Mole* mole) {

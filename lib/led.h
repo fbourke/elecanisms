@@ -7,19 +7,25 @@ typedef enum {
     UNLIT
 } LEDState;
 
-extern LEDState allLEDS;
+// typedef struct LED {
+//     uint16_t number,
+//     uint16_t size,
+//     uint16_t positions[16],
+//     uint16_t states,
+// }
 
-extern _PIN* pin_SData;
-extern _PIN* pin_LE;
-extern _PIN* pin_CLK;
-extern _PIN* pin_OE;
+typedef enum {
+    TIME,
+    SCORE,
+    PERIPHERAL
+} LEDBlock;
 
-extern uint16_t LEDStates;
-
+extern uint16_t LEDStates[3];
 
 void LED_delay();
 void LED_longDelay();
-void writeLEDState(int LEDNumber, LEDState state);
+// void writeLEDState(uint16_t LEDNumber, LEDState state);
+void writeLEDState(LEDBlock ledBlock, uint16_t LEDNumber, LEDState state);
 void init_LED();
 void LED_pulseClock();
 void pulseLatch();

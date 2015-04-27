@@ -37,12 +37,24 @@ int16_t main(void) {
 
     while (1) {
         // allLEDS = LIT;
-        writeLEDState(15, LIT);
-        updateLEDs();
-        mole_longDelay();
-        writeLEDState(15, UNLIT);
-        // allLEDS = UNLIT;
-        updateLEDs();
-        mole_longDelay();
+        int i;
+        for (i = 0; i < 16; i++)
+        {
+            writeLEDState(PERIPHERAL, 1, LIT);
+            updateLEDs();
+            LED_longDelay();
+        }
+        for (i = 0; i < 16; i++)
+        {
+            writeLEDState(PERIPHERAL, 1, UNLIT);
+            updateLEDs();
+            LED_longDelay();        
+        }
+        // for (i = 0; i < 16; i++)
+        // {
+        //     writeLEDState(TIME, i, UNLIT);
+        //     updateLEDs();
+        //     LED_longDelay();
+        // }
     }
 }

@@ -44,7 +44,8 @@ typedef struct Mole {
     MoleValveStatus valveStatus;
 } Mole;
 
-extern Button buttons[3];
+extern Button moleButtons[3];
+extern Button modeButtons[2];
 extern Mole moles[3];
 
 void init_moles(void);
@@ -55,6 +56,7 @@ void close_valves(Mole* mole);
 void push_down(Mole* mole);
 void push_up(Mole* mole);
 
+void allMolesDown();
 void mole_delay();
 void mole_longDelay();
 void init_mole_SR();
