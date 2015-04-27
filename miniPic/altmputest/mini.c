@@ -6,6 +6,7 @@
 #include "pin.h"
 #include "spi.h"
 #include "xl.h"
+#include "timer.h"
 
 #define TOGGLE_LED1         1
 #define TOGGLE_LED2         2
@@ -344,11 +345,48 @@ void VendorRequestsOut(void) {
     }
 }
 
+void detect_hammer(void) {
+	uint8_t values[6] = {0,0,0,0,0,0};
+	int32_t thresholdSq = 3000000;
+
+
+	xl_readRegs(0x0E, &values, 6);
+
+	int16_t x = values[0] + 256*values[1];
+	int16_t y = values[2] + 256*values[3]; 
+	int16_t z = values[4] + 256*values[5];
+
+	x = x>32767 ? x - 65536 : x;
+	y = y>32767 ? y - 65536 : y;
+	z = z>32767 ? z - 65536 : z;
+
+	int32_t sumsq = ((int32_t) x)*((int32_t) x) +
+	                ((int32_t) y)*((int32_t) y) +
+	                ((int32_t) z)*((int32_t) z);
+
+	 if (sumsq > thresholdSq) {
+	    pin_set(&rb0);
+	    pin_set(led1);
+	    pin_set(led2);
+	}
+	else {
+	    pin_clear(&rb0);
+	    pin_clear(led1);
+	    pin_clear(led2);
+	}
+
+	printf("%li\n",sumsq);
+    }
+
 int16_t main(void) {
     init_clock();
     init_pin();
     init_spi();
     init_xl();
+    init_timer();
+
+   pin_digitalOut(&rb0);
+
 
     mpucs = &ra2;
     pin_digitalOut(mpucs);
@@ -369,11 +407,14 @@ int16_t main(void) {
     xlint2 = &rb4;
     show_xlint1 = 0;
     show_xlint2 = 0;
+    timer_setPeriod(&timer1, .005);
+	timer_start(&timer1);
 
     InitUSB();                              // initialize the USB registers and serial interface engine
     while (USB_USWSTAT!=CONFIG_STATE) {     // while the peripheral is not configured...
         ServiceUSB();                       // ...service USB requests
     }
+
 
     while (1) {
         ServiceUSB();                       // service any pending USB requests
@@ -381,7 +422,9 @@ int16_t main(void) {
             pin_write(led1, pin_read(xlint1));
         if (show_xlint2)
             pin_write(led2, pin_read(xlint2));
-
-
-    }
+    	if (timer_flag(&timer1)) {
+            timer_lower(&timer1);
+			detect_hammer();
+		}
+	}    	
 }

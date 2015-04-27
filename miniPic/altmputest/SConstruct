@@ -3,7 +3,7 @@ import os, sys, platform
 sys.path.append(os.path.relpath("../../site_scons"))
 import bootloadercmd as b
 
-file_to_run = 'altmputest'
+file_to_run = 'mini'
 
 def setup_PIC_env():
   env = Environment(PIC = '24FJ64GB002', 
@@ -52,7 +52,8 @@ env.Program(file_to_run, [ file_to_run + '.c',
                            'descriptors.c', 
                            'usb.c', 
                            '../lib/pin.c', 
-                           '../lib/spi.c'])
+                           '../lib/spi.c',
+                           '../lib/timer.c'])
 
 print('Creating builder to load hex file via bootloader...')
 append_builders(env)
