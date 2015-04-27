@@ -49,20 +49,29 @@ p {
     transform: translate(-50%, -50%)
 }
 
+
+
 @media only screen and (max-width : 992px) {
   .parallax-container .section {
     position: absolute;
     top: 40%;
   }
-  #index-banner .section {
+/*  #index-banner .section {
     top: 10%;
-  }
+  }*/
+/*  #intro {
+	position: absolute;
+    top: 50vh;
+    left: 50vh;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
+}*/
 }
 
 @media only screen and (max-width : 600px) {
-  #index-banner .section {
+/*  #index-banner .section {
     top: 0;
-  }
+  }*/
 }
 
 
