@@ -8,7 +8,8 @@ foo = spitest.spitest()
 foo.xl_writeReg(0x2D, 0x02)
 
 while 1:
-    ret = foo.xl_readRegs(0x0E, 6)
+    ret = foo.xl_readRegs(0x0E, 6) 
+
 
     x = ret[0] + 256*ret[1]
     y = ret[2] + 256*ret[3]
@@ -22,6 +23,7 @@ while 1:
     print 'x = {0:+05.3f}g'.format(float(x)*0.001)
     print 'y = {0:+05.3f}g'.format(float(y)*0.001)
     print 'z = {0:+05.3f}g'.format(float(z)*0.001)
+    print 'squares = {0:+05.3f}g'.format(float(x)*float(x) + float(y)*float(y) + float(z)*float(z))
 
     t0 = time.clock()
     while time.clock()<t0+0.05:
