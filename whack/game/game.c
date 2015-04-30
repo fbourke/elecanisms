@@ -97,7 +97,7 @@ double randDouble() {
 }
 
 void scheduleUp(Mole* mole) {
-    mole->downWait = 2.0;
+    mole->downWait = 1.0 + 2.0 * randDouble();
 }
 
 void scheduleDown(Mole* mole) {
@@ -121,7 +121,7 @@ void reset_game() {
     }
 }
 
-void updateScore(int increment) {
+void incrementScore(int increment) {
     score += increment;
     if (increment > 0 && score >= 0) {
         writeLEDState(TIME, score - 1, LIT);
@@ -138,20 +138,20 @@ void updateScore(int increment) {
     } else if (score <= 0) {
         score = 0;
     }
-    // if (gameState == NICE && score >= 3) {
-    //     gameState = EVIL;
-    //     printf("Going to hardmode.\n");
-    // }
+    if (gameState == NICE && score >= 10) {
+        gameState = EVIL;
+        printf("Going to hardmode.\n");
+    }
 }
 
 void moleHit(Mole* mole) {
-    updateScore(1);
+    incrementScore(1);
     push_down(mole);
     scheduleUp(mole);
 }
 
 void moleMissed(Mole* mole) {
-    updateScore(-1);
+    incrementScore(-1);
     push_down(mole);
     scheduleUp(mole);
 }
@@ -203,6 +203,14 @@ void senseButtons() {
     }
     if ((gameState == EVIL) && (hammerSwung())) {
         allMolesDown();
+        int i; Mole* mole;
+        for (i = 0; i < 3; ++i) {
+            mole = &moles[i];
+            scheduleUp(mole);
+            if (gameMode == HARD) {
+                incrementScore(-1);
+            }
+        }
     }
 }
 
@@ -256,7 +264,6 @@ int16_t main(void) {
     timer_setPeriod(&timer3, 0.001);
     timer_start(&timer3);
 
-
     reset_game();
 
     while (1) {
@@ -264,12 +271,14 @@ int16_t main(void) {
             if (timer_flag(&timer1)) {
                 timer_lower(&timer1);
                 waitingForCoin();
+                updateLEDs();
             }
         } else if (gameState == MODE_NEEDED) {
             if (timer_flag(&timer1)) {
                 timer_lower(&timer1);
                 updateTimes();
                 waitingForMode();
+                updateLEDs();
             }
         } else {
             if (timer_flag(&timer3)) {

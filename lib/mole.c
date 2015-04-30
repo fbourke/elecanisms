@@ -74,7 +74,7 @@ void close_valves(Mole* mole) {
     writeValveState(mole->solenoidOut, CLOSED);
     updateValves();
     printf("closing mole %d\n", mole->number);
-    printMole(mole);
+    // printMole(mole);
 }
 
 
@@ -87,7 +87,7 @@ void setMoleDown(Mole* mole) {
     mole->downTimePassed = 0;
     mole->downWait = WAIT_MAX;
     printf("lowering mole %d\n", mole->number);
-    printMole(mole);
+    // printMole(mole);
 }
 
 void push_down(Mole* mole) {
@@ -116,7 +116,7 @@ void push_up(Mole* mole) {
     mole->upTimePassed = 0;
     mole->downWait = (double) WAIT_MAX;
     printf("rasing mole %d\n", mole->number);
-    printMole(mole);
+    // printMole(mole);
 }
 
 void mole_delay(){
