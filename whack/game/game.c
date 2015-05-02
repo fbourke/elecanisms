@@ -61,6 +61,7 @@ uint16_t button_hit(Button* button) {
 void beginGame() {
     writeLEDState(PERIPHERAL, 0, UNLIT);
     writeLEDState(PERIPHERAL, 1, UNLIT);
+    fullTime();
     updateLEDs();
     gameState = NICE;
     score = 0;
@@ -73,10 +74,12 @@ void beginGame() {
     gameTime = 0.0;
 }
 
+
 void waitingForMode() {
     if (button_hit(&modeButtons[0])) {
         gameMode = EASY;
         beginGame(); return;
+
     } else if (button_hit(&modeButtons[1])) {
         gameMode = HARD;
         beginGame(); return;
@@ -124,11 +127,11 @@ void reset_game() {
 void incrementScore(int increment) {
     score += increment;
     if (increment > 0 && score >= 0) {
-        writeLEDState(TIME, score - 1, LIT);
+        writeLEDState(SCORE, score - 1, LIT);
         updateLEDs();
     }
     if (increment < 0 && score >= 0) {
-        writeLEDState(TIME, score, UNLIT);
+        writeLEDState(SCORE, score, UNLIT);
         updateLEDs();
     }
     printf("%d\n", score);
@@ -225,6 +228,11 @@ void updateTimes() {
     int i;
     Mole* mole;
     gameTime = gameTime + gamePeriod;
+
+    if (gameMode != MODE_NEEDED) {
+        writeLEDState(TIME, 16 - (gameTime / 3), UNLIT);
+    }
+ 
     for (i=0; i<3; i++) {
         mole = &moles[i];
         if (mole->direction == DOWN) {

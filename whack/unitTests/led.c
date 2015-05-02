@@ -40,21 +40,27 @@ int16_t main(void) {
         int i;
         for (i = 0; i < 16; i++)
         {
-            writeLEDState(PERIPHERAL, 1, LIT);
+            writeLEDState(SCORE, i, LIT);
             updateLEDs();
             LED_longDelay();
         }
         for (i = 0; i < 16; i++)
         {
-            writeLEDState(PERIPHERAL, 1, UNLIT);
+            writeLEDState(SCORE, i, UNLIT);
             updateLEDs();
             LED_longDelay();        
         }
-        // for (i = 0; i < 16; i++)
-        // {
-        //     writeLEDState(TIME, i, UNLIT);
-        //     updateLEDs();
-        //     LED_longDelay();
-        // }
+        for (i = 0; i < 16; i++)
+        {
+            writeLEDState(TIME, i, LIT);
+            updateLEDs();
+            LED_longDelay();
+        }
+        for (i = 0; i < 16; i++)
+        {
+            writeLEDState(TIME, i, UNLIT);
+            updateLEDs();
+            LED_longDelay();        
+        }
     }
 }

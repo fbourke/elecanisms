@@ -30,5 +30,6 @@ void init_LED();
 void LED_pulseClock();
 void pulseLatch();
 void updateLEDs();
+void fullTime();
 
 #endif
