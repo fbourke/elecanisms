@@ -14,6 +14,7 @@
 volatile uint16_t gyro;
 int16_t score;
 
+double timeInterval = 3;
 double gamePeriod = 0.01;  // seconds
 double upOpenTime = 1.0;   // seconds
 double downOpenTime = 0.3; // seconds
@@ -230,7 +231,13 @@ void updateTimes() {
     gameTime = gameTime + gamePeriod;
 
     if (gameMode != MODE_NEEDED) {
-        writeLEDState(TIME, 16 - (gameTime / 3), UNLIT);
+        printf("%f \n", gameTime);
+        writeLEDState(TIME, 16 - (gameTime / timeInterval), UNLIT);
+        if (gameTime >= (timeInterval*16)) {
+            printf("YOU LOSE!\n");
+            reset_game();
+        } 
+
     }
  
     for (i=0; i<3; i++) {
