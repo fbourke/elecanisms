@@ -19,6 +19,7 @@ double upOpenTime = 1.0;   // seconds
 double downOpenTime = 0.3; // seconds
 double betweenUpTime = 1.0;
 double lastUpTime = 64000.0;
+const double fullGameTime = 48.0;
 
 typedef enum {
 NICE,
@@ -36,6 +37,14 @@ volatile GameState gameState = COIN_NEEDED;
 GameMode gameMode = EASY;
 
 uint16_t coinVoltage;
+
+uint16_t playingGame() {
+    if (gameMode == COIN_NEEDED) || gameMode == MODE_NEEDED) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
 
 void waitingForCoin() {
     int i;
@@ -217,6 +226,10 @@ void senseButtons() {
     }
 }
 
+uint16_t LEDsLitUpTo(uint16_t lightNumber) {
+    
+}
+
 void setup_pins() {
     int i;
     for (i = 0; i<6; i++) {
@@ -228,8 +241,9 @@ void updateTimes() {
     int i;
     Mole* mole;
     gameTime = gameTime + gamePeriod;
+    timeRemaining = fullGameTime - gameTime;
 
-    if (gameMode != MODE_NEEDED) {
+    if (playingGame) {
         writeLEDState(TIME, 16 - (gameTime / 3), UNLIT);
     }
  

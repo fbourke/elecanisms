@@ -55,6 +55,17 @@ void writeLEDState(LEDBlock ledBlock, uint16_t LEDNumber, LEDState state) {
     }
 }
 
+void writeLEDBlock(LEDBlock ledBlock, uint16_t states) {
+    for (int i = 0; i < 16; ++i) {
+        uint16_t bitMask = 1 << i;
+        if (states & bitMask) {
+            writeLEDState(ledBlock, i, LIT);
+        } else {
+            writeLEDState(ledBlock, i, UNLIT);
+        }
+    }
+}
+
 void resetLEDs() {
     int i;
     for (i = 0; i < 3; ++i)
