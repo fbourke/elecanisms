@@ -37,6 +37,7 @@ int16_t main(void) {
 
     while (1) {
         // allLEDS = LIT;
+
         int i;
         for (i = 0; i < 16; i++)
         {
@@ -46,21 +47,15 @@ int16_t main(void) {
         }
         for (i = 0; i < 16; i++)
         {
-            writeLEDState(SCORE, i, UNLIT);
-            updateLEDs();
-            LED_longDelay();        
-        }
-        for (i = 0; i < 16; i++)
-        {
             writeLEDState(TIME, i, LIT);
             updateLEDs();
-            LED_longDelay();
+            LED_longDelay();        
         }
         for (i = 0; i < 16; i++)
         {
-            writeLEDState(TIME, i, UNLIT);
+            writeLEDState(PERIPHERAL, i, LIT);
             updateLEDs();
-            LED_longDelay();        
+            LED_longDelay();
         }
     }
 }

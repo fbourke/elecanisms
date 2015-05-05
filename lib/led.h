@@ -17,7 +17,7 @@ typedef enum {
 typedef enum {
     TIME,
     SCORE,
-    PERIPHERAL
+    PERIPHERAL,
 } LEDBlock;
 
 extern uint16_t LEDStates[3];
