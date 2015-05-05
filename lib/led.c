@@ -48,15 +48,15 @@ void writeLEDState(LEDBlock ledBlock, uint16_t LEDNumber, LEDState state) {
     if (state == LIT) {
         bitMask = 1<<LEDPostion;
         *buffer = *buffer | bitMask;
-    }
-    if (state == UNLIT) {
+    } if (state == UNLIT) {
         bitMask = ~(1<<LEDPostion); 
         *buffer = *buffer & bitMask;
     }
 }
 
 void writeLEDBlock(LEDBlock ledBlock, uint16_t states) {
-    for (int i = 0; i < 16; ++i) {
+    int i;
+    for (i = 0; i < 16; ++i) {
         uint16_t bitMask = 1 << i;
         if (states & bitMask) {
             writeLEDState(ledBlock, i, LIT);
@@ -64,6 +64,14 @@ void writeLEDBlock(LEDBlock ledBlock, uint16_t states) {
             writeLEDState(ledBlock, i, UNLIT);
         }
     }
+}
+
+uint16_t LEDsLitUpTo(uint16_t lightNumber) {
+    return (1 << lightNumber) - 1;
+}
+
+uint16_t LEDsLitBetween(uint16_t minimumInclusive, uint16_t maximumExclusive) {
+    return LEDsLitUpTo(minimumInclusive) ^ LEDsLitUpTo(maximumExclusive);
 }
 
 void resetLEDs() {
@@ -114,11 +122,9 @@ void printLEDs() {
 void updateLEDs() {
     // printLEDs();
     int count = 0;
-    // pin_set(pin_OE);
     for(count = 47; count >= 0; count--) {
         if (count < 16) {
             pin_write(pin_SData, LEDStates[0] & (1 << (count % 16)));
-            // pin_set(pin_SData);
         } else if (count < 32) {
             pin_write(pin_SData, LEDStates[1] & (1 << (count % 16)));
         } else {
@@ -130,7 +136,6 @@ void updateLEDs() {
     LED_delay();
     pin_clear(pin_OE);
 }
-
 
 void fullTime() {
     int i;

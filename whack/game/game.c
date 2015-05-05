@@ -14,12 +14,15 @@
 volatile uint16_t gyro;
 int16_t score;
 
+double timeInterval = 3;
 double gamePeriod = 0.01;  // seconds
 double upOpenTime = 1.0;   // seconds
 double downOpenTime = 0.3; // seconds
 double betweenUpTime = 1.0;
 double lastUpTime = 64000.0;
 const double fullGameTime = 48.0;
+int i; 
+Mole* mole;
 
 typedef enum {
 NICE,
@@ -39,19 +42,20 @@ GameMode gameMode = EASY;
 uint16_t coinVoltage;
 
 uint16_t playingGame() {
-    if (gameMode == COIN_NEEDED) || gameMode == MODE_NEEDED) {
+    if ((gameMode == COIN_NEEDED) || (gameMode == MODE_NEEDED)) {
         return 0;
     } else {
         return 1;
     }
 }
 
+uint16_t coinInserted;
 void waitingForCoin() {
-    int i;
     coinVoltage = pin_read(&A[3]) >> 6;
-    uint16_t coinInserted = (coinVoltage > 100);
+    coinInserted = (coinVoltage > 100);
     if (coinInserted) {
         printf("Coin inserted\n");
+        gameTime = 0;
         gameState = MODE_NEEDED;
     }
 }
@@ -75,7 +79,6 @@ void beginGame() {
     gameState = NICE;
     score = 0;
     printf("starting game\n");
-    int i; Mole* mole;
     for (i=0; i<3; i++) {
         mole = &moles[i];
         mole->downWait = (double) (mole->number);
@@ -126,23 +129,15 @@ void reset_game() {
     gameState = COIN_NEEDED;
     allMolesDown();
     mole_longDelay();
-    int i;
     for (i=0; i<3; i++) {
-        Mole* mole = &moles[i];
+        mole = &moles[i];
         close_valves(mole);
     }
 }
 
 void incrementScore(int increment) {
     score += increment;
-    if (increment > 0 && score >= 0) {
-        writeLEDState(SCORE, score - 1, LIT);
-        updateLEDs();
-    }
-    if (increment < 0 && score >= 0) {
-        writeLEDState(SCORE, score, UNLIT);
-        updateLEDs();
-    }
+    writeLEDBlock(SCORE, LEDsLitUpTo(score));
     printf("%d\n", score);
     if (score >= 16) {
         printf("YOU WIN!\n");
@@ -175,9 +170,8 @@ void molePop(Mole* mole) {
 }
 
 void switch_state() {
-    int i;
     for (i=0; i<3; i++) {
-        Mole* mole = &moles[i];
+        mole = &moles[i];
         if (mole->direction == UP) {
             if (mole->upTimePassed) {
                 moleMissed(mole);
@@ -204,9 +198,8 @@ uint16_t hammerSwung() {
 }
 
 void senseButtons() {
-    int i;
     for (i=0; i<3; i++) {
-        Mole* mole = &moles[i];
+        mole = &moles[i];
         if (mole->direction == UP) {
             if (button_hit(mole->button)) {
                 moleHit(mole);
@@ -215,7 +208,6 @@ void senseButtons() {
     }
     if ((gameState == EVIL) && (hammerSwung())) {
         allMolesDown();
-        int i; Mole* mole;
         for (i = 0; i < 3; ++i) {
             mole = &moles[i];
             scheduleUp(mole);
@@ -226,25 +218,24 @@ void senseButtons() {
     }
 }
 
-uint16_t LEDsLitUpTo(uint16_t lightNumber) {
-    
-}
-
 void setup_pins() {
-    int i;
     for (i = 0; i<6; i++) {
         pin_analogIn(&A[i]);
     }
 }
 
 void updateTimes() {
-    int i;
-    Mole* mole;
     gameTime = gameTime + gamePeriod;
-    timeRemaining = fullGameTime - gameTime;
+    double timeRemaining = fullGameTime - gameTime;
+    uint16_t lightNumber = (uint16_t) ceil((timeRemaining / gameTime) * 16.0);
 
     if (playingGame) {
-        writeLEDState(TIME, 16 - (gameTime / 3), UNLIT);
+        printf("%f \n", gameTime);
+        writeLEDBlock(TIME, LEDsLitUpTo(lightNumber));
+        if (gameTime >= (timeInterval*16)) {
+            printf("YOU LOSE!\n");
+            reset_game();
+        }
     }
  
     for (i=0; i<3; i++) {
@@ -311,7 +302,6 @@ int16_t main(void) {
                 timer_lower(&timer1);
                 updateTimes();
                 switch_state();
-                // updateValves();
                 updateLEDs();
             }
             if (timer_flag(&timer2)) {
