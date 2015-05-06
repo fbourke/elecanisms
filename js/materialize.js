@@ -1011,7 +1011,8 @@ $(document).ready(function(){
           var windowHeight = window.innerHeight;
           var windowBottom = scrollTop + windowHeight;
           var percentScrolled = (windowBottom - top) / (container_height + windowHeight);
-          var parallax = Math.round((parallax_dist * percentScrolled));
+          // var parallax = Math.round((parallax_dist * percentScrolled));
+          var parallax = Math.round((parallax_dist * percentScrolled * 1.5));
 
           if (initial) {
             $img.css('display', 'block');
