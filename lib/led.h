@@ -23,13 +23,15 @@ typedef enum {
 extern uint16_t LEDStates[3];
 
 void LED_delay();
-void LED_longDelay();
+void LED_5Hz_Delay();
 // void writeLEDState(uint16_t LEDNumber, LEDState state);
 void writeLEDState(LEDBlock ledBlock, uint16_t LEDNumber, LEDState state);
 void init_LED();
 void LED_pulseClock();
 void pulseLatch();
 void updateLEDs();
-void fullTime();
+void flashAllLEDs();
+uint16_t allLEDsOn();
+uint16_t allLEDsOff();
 
 #endif

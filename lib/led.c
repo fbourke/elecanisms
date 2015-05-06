@@ -3,8 +3,10 @@
 #include "pin.h"
 #include "led.h"
 #include <math.h>
+#include <stdio.h>
 
 LEDState allLEDS = LIT;
+    int c, d;
 
 _PIN* pin_SData = &D[5];
 _PIN* pin_LE = &A[4];
@@ -12,11 +14,11 @@ _PIN* pin_CLK = &D[6];
 _PIN* pin_OE = &D[7];
 
 uint16_t LEDStates[3];
-
 uint16_t LEDMap[3][16] = {
     {3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 9, 8, 15, 14, 13, 12},
-    {4, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4},
-    {3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 9, 8, 15, 14, 13, 12},};
+    {3, 2, 1, 0, 7, 6, 5, 4, 11, 10, 9, 8, 15, 14, 13, 12},
+    {4, 5, 8, 9, 10, 11, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0}
+};
 
 void LED_delay() {
     int c = 1;
@@ -25,42 +27,49 @@ void LED_delay() {
     }
 }
 
-void LED_longDelay(){
+void LED_5Hz_Delay(){
    int c = 1, d = 1;
-   for ( c = 1 ; c <= 32000 ; c++ ) { 
-        for ( d = 1 ; d <= 30 ; d++ ) {}
+   for ( c = 1 ; c <= 10000 ; c++ ) { 
+        for ( d = 1 ; d <= 4 ; d++ ) {}
     }
 }
 
-// void writeLEDState(uint16_t LEDNumber, LEDState state) {
-//     uint16_t bitMask;
-//     uint16_t bufferNumber = floor(LEDNumber / 16);
-//     uint16_t bufferPosition = LEDNumber % 16;
+uint16_t LEDBlockIndex(LEDBlock block) {
+    if (block == TIME) {
+        return 0;
+    } else if (block == SCORE) {
+        return 1;
+    } else if (block == PERIPHERAL) {
+        return 2;
+    }
+}
 
-//     writeLEDState(bufferNumber, bufferPosition, state);
-// }
-
+uint16_t blockIndex;
+uint16_t* stateBuffer;
+uint16_t LEDPostion;
+uint16_t LEDbitMask;
 void writeLEDState(LEDBlock ledBlock, uint16_t LEDNumber, LEDState state) {
-    uint16_t* buffer = &LEDStates[ledBlock];
-    uint16_t LEDPostion = LEDMap[ledBlock][LEDNumber];
-    uint16_t bitMask;
+    blockIndex = LEDBlockIndex(ledBlock);
+    stateBuffer = &LEDStates[blockIndex];
+    LEDPostion = LEDMap[blockIndex][LEDNumber];
+    LEDbitMask;
     if (state == LIT) {
-        bitMask = 1<<LEDPostion;
-        *buffer = *buffer | bitMask;
+        LEDbitMask = 1<<LEDPostion;
+        *stateBuffer = *stateBuffer | LEDbitMask;
     } if (state == UNLIT) {
-        bitMask = ~(1<<LEDPostion); 
-        *buffer = *buffer & bitMask;
+        LEDbitMask = ~(1<<LEDPostion); 
+        *stateBuffer = *stateBuffer & LEDbitMask;
     }
 }
+
 
 void writeLEDBlock(LEDBlock ledBlock, uint16_t states) {
-    int i;
-    for (i = 0; i < 16; ++i) {
-        uint16_t bitMask = 1 << i;
-        if (states & bitMask) {
-            writeLEDState(ledBlock, i, LIT);
+    for (c = 0; c < 16; ++c) {
+        LEDbitMask = 1 << c;
+        if (states & LEDbitMask) {
+            writeLEDState(ledBlock, c, LIT);
         } else {
-            writeLEDState(ledBlock, i, UNLIT);
+            writeLEDState(ledBlock, c, UNLIT);
         }
     }
 }
@@ -69,17 +78,45 @@ uint16_t LEDsLitUpTo(uint16_t lightNumber) {
     return (1 << lightNumber) - 1;
 }
 
-uint16_t LEDsLitBetween(uint16_t minimumInclusive, uint16_t maximumExclusive) {
+uint16_t LEDsLitBetween(int16_t minimumInclusive, int16_t maximumExclusive) {
+    if (minimumInclusive < 0) {minimumInclusive = 0;}
+    if (minimumInclusive > 15) {minimumInclusive = 15;}
+    if (maximumExclusive < 1) {maximumExclusive = 1;}
+    if (maximumExclusive > 16) {maximumExclusive = 16;}
     return LEDsLitUpTo(minimumInclusive) ^ LEDsLitUpTo(maximumExclusive);
 }
 
+uint16_t AllLEDsOn() {
+    return -1;
+}
+
+uint16_t AllLEDsOff() {
+    return 0;
+}
+
 void resetLEDs() {
-    int i;
-    for (i = 0; i < 3; ++i)
+    for (d = 0; d < 3; ++d)
     {
-        LEDStates[i] = 0;
+        LEDStates[d] = AllLEDsOff();
     }
     updateLEDs();
+}
+
+void lightAllLEDs() {
+    for (d = 0; d < 3; ++d)
+    {
+        LEDStates[d] = AllLEDsOn();
+    }
+    updateLEDs();    
+}
+
+void flashAllLEDs() {
+    for (c = 0; c < 4; c++) {
+        lightAllLEDs();
+        LED_5Hz_Delay();
+        resetLEDs();
+        LED_5Hz_Delay();
+    }
 }
 
 void init_LED() {
@@ -108,26 +145,26 @@ void pulseLatch(){
 }
 
 void printLEDs() {
-    int i, j;
-    for (j=0; j<3; j++) {
-        for (i=15; i>=0; i--) {
-            printf("%d", !!(LEDStates[0] & (1 << i)));
+    for (d=0; d<3; d++) {
+        for (c=15; c>=0; c--) {
+            printf("%d", !!(LEDStates[0] & (1 << c)));
         }
         printf("|");
     }
     printf("\n");
 }
 
+int LEDSwitchCount;
 void updateLEDs() {
     // printLEDs();
-    int count = 0;
-    for(count = 47; count >= 0; count--) {
-        if (count < 16) {
-            pin_write(pin_SData, LEDStates[0] & (1 << (count % 16)));
-        } else if (count < 32) {
-            pin_write(pin_SData, LEDStates[1] & (1 << (count % 16)));
+    LEDSwitchCount = 0;
+    for(LEDSwitchCount = 47; LEDSwitchCount >= 0; LEDSwitchCount--) {
+        if (LEDSwitchCount < 16) {
+            pin_write(pin_SData, LEDStates[0] & (1 << (LEDSwitchCount % 16)));
+        } else if (LEDSwitchCount < 32) {
+            pin_write(pin_SData, LEDStates[1] & (1 << (LEDSwitchCount % 16)));
         } else {
-            pin_write(pin_SData, LEDStates[2] & (1 << (count % 16)));            
+            pin_write(pin_SData, LEDStates[2] & (1 << (LEDSwitchCount % 16)));            
         }
         LED_pulseClock();
     } 
@@ -137,10 +174,9 @@ void updateLEDs() {
 }
 
 void fullTime() {
-    int i;
-    for (i = 0; i < 16; i++)
+    for (c = 0; c < 16; c++)
     {
-        writeLEDState(TIME, i, LIT);
+        writeLEDState(TIME, c, LIT);
     }
-        updateLEDs();
+    updateLEDs();
 }

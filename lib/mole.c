@@ -5,7 +5,10 @@
 #include "schedule.h"
 #include <math.h>
 
-const double WAIT_MAX = 64000.0; 
+const double WAIT_MAX = 64000.0;
+int m, n;
+Mole* moleIter;
+
 
 Button moleButtons[3];
 Button modeButtons[2];
@@ -31,7 +34,8 @@ void init_moles(void) {
     init_mole_SR();
 }
 
-void mole_init(Mole* mole, Button* button, int number, uint16_t solenoidIn, uint16_t solenoidOut) {
+void mole_init(Mole* mole, Button* button, int number, 
+               uint16_t solenoidIn, uint16_t solenoidOut) {
     mole->number = number;
     mole->solenoidIn = solenoidIn;
     mole->solenoidOut = solenoidOut;
@@ -56,9 +60,8 @@ void button_init(Button* button, int pin) {
 
 void printMole(Mole* mole) {
     printf("in: %d, out: %d, valveStates: ", mole->solenoidIn, mole->solenoidOut);
-    int i;
-    for (i=7; i>=0; i--) {
-        printf("%d", !!(valveStates & (1 << i)));
+    for (m=7; m>=0; m--) {
+        printf("%d", !!(valveStates & (1 << m)));
     }
     printf("\n");
 }
@@ -96,11 +99,9 @@ void push_down(Mole* mole) {
 }
 
 void allMolesDown(void) {
-    int i;
-    Mole* mole;
-    for (i=0; i<3; i++) {
-        mole = &moles[i];
-        setMoleDown(mole);
+    for (m=0; m<3; m++) {
+        moleIter = &moles[m];
+        setMoleDown(moleIter);
     }
     updateValves();
 }
@@ -120,22 +121,16 @@ void push_up(Mole* mole) {
 }
 
 void mole_delay(){
-    int c = 1;
-    for ( c = 1 ; c <= 500 ; c++ ){}
+    for ( n = 1 ; n <= 500 ; n++ ){}
 }
 
 void mole_mediumDelay(){
-    int c = 1;
-
-    for ( c = 1 ; c <= 32000 ; c++ ){ 
-    }
+    for ( n = 1 ; n <= 32000 ; n++ ){}
 }
 
 void mole_longDelay(){
-    int c = 1, d = 1;
-
-    for ( c = 1 ; c <= 32000 ; c++ ){ 
-        for ( d = 1 ; d <= 50 ; d++ ){}
+    for ( n = 1 ; n <= 32000 ; n++ ){ 
+        for ( m = 1 ; m <= 50 ; m++ ){}
     }
 }
 
@@ -144,10 +139,10 @@ void init_mole_SR() {
     pin_digitalOut(moleSRData);
 }
 
+int switchCount;
 void updateValves() {
-    int count;
-    for(count = 0; count < 8; count++) {
-        pin_write(moleSRData, valveStates & (1 << count));
+    for(switchCount = 0; switchCount < 8; switchCount++) {
+        pin_write(moleSRData, valveStates & (1 << switchCount));
         mole_pulseClock();
     }
     mole_delay();
@@ -162,8 +157,8 @@ void mole_pulseClock(){
     pin_clear(moleSRClock);
 }
 
+uint16_t bitMask;
 void writeValveState(int valveNumber, ValveState state) {
-    uint16_t bitMask;
     if (state == OPEN) {
         bitMask = 1<<valveNumber;
         valveStates = valveStates | bitMask;

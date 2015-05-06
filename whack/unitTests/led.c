@@ -40,7 +40,7 @@ int16_t main(void) {
     while (1) {
         // allLEDS = LIT;
 
-        // int i;
+        int i;
         // for (i = 0; i < 16; i++)
         // {
         //     writeLEDState(SCORE, i, LIT);
@@ -55,9 +55,11 @@ int16_t main(void) {
         // }
         // for (i = 0; i < 16; i++)
         // {
+            writeLEDState(PERIPHERAL, 0, LIT);
+            writeLEDState(PERIPHERAL, 1, LIT);
             writeLEDState(PERIPHERAL, 15, LIT);
             updateLEDs();
-            LED_longDelay();
+            LED_5Hz_Delay();
         // }
     }
 }
