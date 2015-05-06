@@ -347,7 +347,7 @@ void VendorRequestsOut(void) {
 
 void detect_hammer(void) {
 	uint8_t values[6] = {0,0,0,0,0,0};
-	int32_t thresholdSq = 2000000;
+	int32_t thresholdSq = 5000000;
 
 
 	xl_readRegs(0x0E, &values, 6);
@@ -383,7 +383,7 @@ int16_t main(void) {
     init_xl();
     init_timer();
 
-   pin_digitalOut(&rb0);
+    pin_digitalOut(&rb0);
 
 
     mpucs = &ra2;
