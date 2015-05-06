@@ -54,6 +54,7 @@
 	      <h2 class="center">What is Wack-A-Mole?</h2>
         <h5 class="center">Certainly not Whack-A-Mole, that's for sure.</h5>
         <p class="light">Any likeness of any features of Wack-A-Mole to any copyrighted likenesses is purely coincidental. With that said, Wack-A-Mole is a game designed in the Spring of 2015 by four Olin engineering students. The game, designed to fit into a penny arcade theme, is simple: hit moles with a hammer to score points before time runs out. However, there is an additonal element to our game—concealed in the hammer is a sensor used to detect when the player is about to attack a mole. As it turns out, it can be incredibly difficult to hit a series of moles that seem to know your every move... </p>
+        <p>How does this work? The hammer contains a small PIC microcontroller board that includes an accelerometer. When the player swings the hammer or jerks it substantially the small PIC sends a “dodge” signal to the main board. When this occurs, all moles that are currently in the up position are instantly retracted.</p>
 	    </div>
 	  </div>
       <!--   Icon Section   -->
@@ -113,16 +114,16 @@
       <div class="row">
         <div class="col s12 m6">
           <h5>Easy</h5>
-          <p class="light">The moles ascend at a leisurely pace, ensuring the player is not overwhelmed.  </p>
+          <p class="light">The moles ascend at a leisurely pace, ensuring the player is not overwhelmed, and they don't retract until they're hit. However, once the player reaches 10 points, the moles still come up slowly, but they run away from the player's hammer! </p>
         </div>
         <div class="col s12 m6">
           <h5>Hard</h5>
-          <p class="light">In hard mode, the moles don't stay up for nearly as long. </p>
+          <p class="light">In hard mode, the moles don't stay up for long! Every time the player misses, a point is subtracted from the total. Even worse, if the player manages to score 10 points, the moles seem to predict the player's every move! </p>
         </div>
       </div>
       <div class="row">
         <div class="col s12">
-          <h3 class="header center"><i class="mdi-action-done-all blue-text"></i></h3>
+          <h3 class="header center"><i class="mdi-editor-attach-money blue-text"></i></h3>
           <h4 class="header center">Bill of Materials</h4>
         </div>
       </div>
@@ -293,8 +294,9 @@
           <p class="light">We chose a variety of materials for our project, and here we'll outline the reasons for our purchases.  </p>
           <h6>Performance Based Decisions</h6>
           <p class="light">We chose pneumatic cylinders to actuate our moles. We investigated other options, including linear electrically powered actuators, but eventually chose peneumatic cylinders for their speed.  We looked into cylinders that were double acting, or powered by compressed air in both directions, but eventually chose spring-return cylinders for cost reasons. The cylinders are faster in the sprung direction than the air-powered direction, so we decided that the moles would retract under spring power and extend by air power. To control a single-acting spring return cyclinder, a 3/2-way valve is typically used, which allows the cylinder to vent air into the atmosphere on the return stroke.</p>
+          <p class="light">Another performanced-based decision we made was to use two single acting solenoid valves per cylinder. After testing a 3/2-way valve and finding it restricted the air from the cylinder too much for our purposes, we moved to one-way valves with larger bore diameters that were less restrictive of flow. </p>
           <h6>Cost-Based Decisions</h6>
-          <p class="light">Pneumatic systems are rather expensive. We made as many choices as possible  </p>
+          <p class="light">Pneumatic systems are rather expensive. We made as many choices as possible to reduce the cost of our system. We used a compressor, acquired on sale from Harbor Freight, to provide the compressed air for the cylinders. It leaves quite a bit to be desired in many respects. The most immediately apparent problem is noise. After investigating muffling methods (and destroying a cheaply made screw in the process), we decided placing the compressor in our assembly was the best we could reasonably do at reducing the noise of the compressor. An additonal problem with the compressor is the regulator does not maintain a constant pressure, and when a high flow is required (such as when multiple moles raise in rapid succession) the pressure on the output of the regulator drops rapidly. </p>
         </div>
       </div>
     </div>
@@ -316,7 +318,7 @@
     <div class="section">
       <div class="row">
         <div class="col s12 center">
-          <h3><i class="mdi-action-done-all blue-text"></i></h3>
+          <h3><i class="mdi-editor-format-paint blue-text"></i></h3>
           <h4>Premium OSB Finish</h4>
         </div>
       </div>
@@ -336,16 +338,86 @@
     <div class="parallax"><img class="background-image" src="img/molesunderground.jpg" alt="Unsplashed background img 2"></div>
   </div>
 
-    <div class="container">
+  <div class="container">
     <div class="section">
       <div class="row">
         <div class="col s12 center">
           <h3><i class="mdi-editor-merge-type blue-text"></i></h3>
           <h4>View Our Code on Github</h4>
           <h5 class=" light">Including both our microcontroller code and the source for this website: <a href="https://github.com/fbourke/elecanisms">https://github.com/fbourke/elecanisms</a></h5>
+          </br>
+          </br>
+          </br>
         </div>
       </div>
-
+      <div class="row">
+        <div class="col m7 s12 center">
+          <div class="card">
+            <div class="card-image">
+              <img src="img/kyle/Main_Board_Layout_Color.png">
+              <span class="card-title">Main Board Layout</span>
+            </div>
+            <div class="card-content">
+              <p>Top layer rendered in red, bottom layer rendered in blue.</p>
+            </div>
+            <div class="card-action">
+            Main Board Layout
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-image">
+              <img src="img/kyle/LED_Board_Layout_Color.png">
+              <span class="card-title">LED Board Layout</span>
+            </div>
+            <div class="card-content">
+              <p>Again, the top layer is rendered in red, bottom layer rendered in blue.</p>
+            </div>
+            <div class="card-action">
+            LED Board Layout
+            </div>
+          </div>
+        </div>
+        <div class="col m5 s12">
+          <p>We designed a PCB breakout board for interfacing the main PIC board to our actuators and peripherals. The board is designed to mount directly onto the PIC similar to an Arduino shield, and has a second row of headers that enables it to be stackable.</p>
+          <p> The board contains control circuitry for driving up to eight solenoids. We choose to use a shift register to conserve limited I/O pins. This shift register drives MOSFETS, with flyback diodes around the load.</p>
+          <p>It also contains basic passive components to enable digital reads of button presses, and was designed to interface directly to a couple of different Bluetooth breakout boards.</p>
+          <p>Finally, the board contains a band pass filter with amplification to make the noisy, small, and floating signal from the coin accepter readable on a PIC running on 3.3 volt rails.</p>
+          <p>We also designed LED breakout boards to drive up to 48 LEDs. Lighting is a key component of our project. All of the buttons are lit, as well as the score columns and various environment lights. This breakout board consists of 6 daisy chained LED drivers (constant current shift registers), and solder points for each individual LED.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12 center">
+        <h3><i class="mdi-action-swap-vert blue-text"></i></h3>
+          <h4>Our Mole Design</h4>
+          <div class="card">
+            <div class="card-image">
+              <img src="img/kyle/Diglett_Complete.png">
+              <span class="card-title">Completed Rendering of our Mole</span>
+            </div>
+            <div class="card-content">
+              <p>Our moles are designed to fit into 4" holes. We adapted their design from a model we found online.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-image">
+              <img src="img/kyle/Diglett_Interior.png">
+              <span class="card-title">Cutaway view of our mole</span>
+            </div>
+            <div class="card-content">
+              <p>The inside of the mole is designed to fit a button with an integrated LED.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-image">
+              <img src="img/kyle/Diglett_Mounting_Ring.png">
+              <span class="card-title">Bottom Section View</span>
+            </div>
+            <div class="card-content">
+              <p>The bottom of the mole is designed to hold a nut and screw into the top of our cylinders.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
