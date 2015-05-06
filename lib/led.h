@@ -30,8 +30,9 @@ void init_LED();
 void LED_pulseClock();
 void pulseLatch();
 void updateLEDs();
-void flashAllLEDs();
-uint16_t allLEDsOn();
+void flashAllLEDs(uint16_t time, uint16_t score, uint16_t flashNumber, uint16_t keepOn);
 uint16_t allLEDsOff();
+void peripheralFlash();
+void peripheralUnflash();
 
 #endif

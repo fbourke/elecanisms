@@ -6,12 +6,13 @@
 #include <stdio.h>
 
 LEDState allLEDS = LIT;
-    int c, d;
+int c, d, e;
 
 _PIN* pin_SData = &D[5];
 _PIN* pin_LE = &A[4];
 _PIN* pin_CLK = &D[6];
 _PIN* pin_OE = &D[7];
+volatile uint16_t dummy;
 
 uint16_t LEDStates[3];
 uint16_t LEDMap[3][16] = {
@@ -21,16 +22,30 @@ uint16_t LEDMap[3][16] = {
 };
 
 void LED_delay() {
-    int c = 1;
     for ( c = 1 ; c <= 300 ; c++ ){
     
     }
 }
 
+void peripheralFlash() {
+    for (c=2; c<=5; c++) {
+        writeLEDState(PERIPHERAL, c, LIT);
+    }
+    updateLEDs();
+}
+
+void peripheralUnflash() {
+    for (c=2; c<=5; c++) {
+        writeLEDState(PERIPHERAL, c, UNLIT);
+    }
+    updateLEDs();
+}
+
 void LED_5Hz_Delay(){
-   int c = 1, d = 1;
-   for ( c = 1 ; c <= 10000 ; c++ ) { 
-        for ( d = 1 ; d <= 4 ; d++ ) {}
+    for ( c = 1 ; c <= 10000 ; c++ ) { 
+        for ( d = 1 ; d <= 4 ; d++ ) {
+            dummy++;
+        }
     }
 }
 
@@ -102,20 +117,22 @@ void resetLEDs() {
     updateLEDs();
 }
 
-void lightAllLEDs() {
-    for (d = 0; d < 3; ++d)
-    {
-        LEDStates[d] = AllLEDsOn();
-    }
+void lightAllLEDs(uint16_t time, uint16_t score) {
+    writeLEDBlock(TIME, LEDsLitUpTo(time));
+    writeLEDBlock(SCORE, LEDsLitUpTo(score));
+    writeLEDBlock(PERIPHERAL, AllLEDsOn());
     updateLEDs();    
 }
 
-void flashAllLEDs() {
-    for (c = 0; c < 4; c++) {
-        lightAllLEDs();
+void flashAllLEDs(uint16_t time, uint16_t score, uint16_t flashNumber, uint16_t keepOn) {
+    for (e = 0; e < flashNumber; e++) {
+        lightAllLEDs(time, score);
         LED_5Hz_Delay();
         resetLEDs();
         LED_5Hz_Delay();
+    }
+    if (keepOn) {
+        lightAllLEDs(time, score);
     }
 }
 

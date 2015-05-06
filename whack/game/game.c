@@ -21,10 +21,18 @@ double gamePeriod = 0.03;  // seconds
 double upOpenTime = 1.0;   // seconds
 double downOpenTime = 0.3; // seconds
 double betweenUpTime = 0.1;
+double sensitivityGracePeriod = 0.05;
+double peripheralFlashTime = 0.18;
+double lastFlash = 0.0;
+double flashPeriod = 0.03;
+uint16_t peripheralsAreFlashing = 0;
 double lastUpTime = 0.0;
 const double fullGameTime = 48.0;
-int i; 
+int i;
 Mole* mole;
+uint16_t lastScore = 16;
+uint16_t lastTime = 16;
+uint16_t timeLightNumber;
 
 typedef enum {
 NICE,
@@ -57,7 +65,7 @@ void waitingForCoin() {
     coinInserted = (coinVoltage > 100);
     if (coinInserted) {
         // printf("Coin inserted\n");
-        flashAllLEDs();
+        flashAllLEDs(16, 16, 4, 0);
         gameTime = 0;
         gameState = MODE_NEEDED;
     }
@@ -125,7 +133,7 @@ void scheduleDown(Mole* mole) {
     if (gameMode == EASY) {
         mole->upWait = WAIT_MAX; // + 1.0 * randDouble();
     } else if (gameMode == HARD) {
-        mole->upWait = 0.1 + 0.2 * randDouble();
+        mole->upWait = 0.2 + 0.8 * randDouble();
     }
 }
 
@@ -143,25 +151,41 @@ void reset_game() {
 uint16_t scoreNumber;
 void incrementScore(int increment) {
     score += increment;
-    scoreNumber = score / 3;
+    if (score < 0) {score = 0;}
+    if (gameMode == EASY) {
+        scoreNumber = score / 2;
+    } else {
+        scoreNumber = score / 2;
+    }
     writeLEDBlock(SCORE, LEDsLitUpTo(scoreNumber));
     printf("%d\n", score);
-    if (scoreNumber >= 16) {
+    if (scoreNumber <= 1000 && scoreNumber >= 16) {
         printf("YOU WIN!\n");
+        flashAllLEDs(timeLightNumber, scoreNumber, 30, 1);
         reset_game();
     } else if (score <= 0) {
         score = 0;
     }
-    if (gameState == NICE && scoreNumber >= 10) {
+    if (gameState == NICE && scoreNumber >= 12) {
         gameState = EVIL;
-        printf("Going to hardmode.\n");
+        printf("Going to evil mode.\n");
+    } else if (gameState == EVIL && scoreNumber <= 7) {
+        gameState = NICE;
+        printf("Going to nice mode\n");
     }
 }
 
 void moleHit(Mole* mole) {
-    incrementScore(1);
+    if (gameMode == EASY) {
+        incrementScore(1);
+    } else {
+        incrementScore(2);
+    }
     push_down(mole);
     scheduleUp(mole);
+    peripheralFlash();
+    lastFlash = gameTime;
+    peripheralsAreFlashing = 1;
 }
 
 void moleMissed(Mole* mole) {
@@ -187,14 +211,27 @@ void switch_state() {
                 close_valves(mole);
             }
         } else if (mole->direction == DOWN) {
-            printf("%f - %f > %f\n", gameTime, lastUpTime, betweenUpTime);
+            // printf("%f - %f > %f\n", gameTime, lastUpTime, betweenUpTime);
             if (mole->downTimePassed
                 && (gameTime - lastUpTime) > betweenUpTime) {
                     molePop(mole);
             } else if (mole->valveStatus == THROUGH
                 && (gameTime - mole->downTime) > downOpenTime) {
                 close_valves(mole);
+            } else if (mole->button->isSensitive 
+                       && gameTime - mole->downTime > sensitivityGracePeriod) {
+                deactivate(mole->button);
             }
+        }
+    }
+    if (peripheralsAreFlashing) {
+        if (gameTime - lastFlash > peripheralFlashTime) {
+            peripheralUnflash();
+            peripheralsAreFlashing = 0;
+        } else if (((uint16_t) floor(gameTime / flashPeriod)) % 2) {
+            peripheralFlash();
+        } else {
+            peripheralUnflash();
         }
     }
 }
@@ -206,7 +243,7 @@ uint16_t hammerSwung() {
 void senseButtons() {
     for (i=0; i<3; i++) {
         mole = &moles[i];
-        if (mole->direction == UP) {
+        if (mole->button->isSensitive) {
             if (button_hit(mole->button)) {
                 moleHit(mole);
             }
@@ -214,12 +251,16 @@ void senseButtons() {
     }
 
     if ((gameState == EVIL) && (hammerSwung())) {
-        allMolesDown();
-        for (i = 0; i < 3; ++i) {
-            mole = &moles[i];
-            scheduleUp(mole);
-            if (gameMode == HARD) {
-                incrementScore(-1);
+        if (((&moles[0])->direction == UP) ||
+            ((&moles[1])->direction == UP) ||
+            ((&moles[2])->direction == UP)) {
+            allMolesDown();
+            for (i = 0; i < 3; ++i) {
+                mole = &moles[i];
+                scheduleUp(mole);
+                if (gameMode == HARD) {
+                    incrementScore(-1);
+                }
             }
         }
     }
@@ -239,17 +280,17 @@ void cyclePeripherals() {
 }
 
 double timeRemaining;
-uint16_t lightNumber;
 void updateTimes() {
     gameTime = gameTime + gamePeriod;
 
     if (playingGame()) {
         timeRemaining = fullGameTime - gameTime;
-        lightNumber = (uint16_t) ceil((timeRemaining / fullGameTime) * 16.0);
-        writeLEDBlock(TIME, LEDsLitUpTo(lightNumber));
+        timeLightNumber = (uint16_t) ceil((timeRemaining / fullGameTime) * 16.0);
+        writeLEDBlock(TIME, LEDsLitUpTo(timeLightNumber));
         if (gameTime >= (timeInterval*16)) {
             printf("YOU LOSE!\n");
             reset_game();
+            flashAllLEDs(timeLightNumber, scoreNumber, 30, 1);
         }
  
         for (i=0; i<3; i++) {

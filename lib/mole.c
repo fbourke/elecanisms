@@ -2,6 +2,7 @@
 #include "common.h"
 #include "pin.h"
 #include "mole.h"
+#include "led.h"
 #include "schedule.h"
 #include <math.h>
 
@@ -21,11 +22,11 @@ _PIN* moleSRClock = &D[4];
 
 void init_moles(void) {
 
-    button_init(&moleButtons[0], 0);
-    button_init(&moleButtons[1], 2);
-    button_init(&moleButtons[2], 1);
-    button_init(&modeButtons[0], 8);
-    button_init(&modeButtons[1], 9);
+    button_init(&moleButtons[0], 0, 8);
+    button_init(&moleButtons[1], 2, 6);
+    button_init(&moleButtons[2], 1, 7);
+    button_init(&modeButtons[0], 8, 0);
+    button_init(&modeButtons[1], 9, 0);
 
     mole_init(&moles[0], &moleButtons[0], 0, 0, 1);
     mole_init(&moles[1], &moleButtons[1], 1, 5, 4);
@@ -50,12 +51,24 @@ void mole_init(Mole* mole, Button* button, int number,
     mole->valveStatus = CUTOFF;
 }
 
-void button_init(Button* button, int pin) {
+void button_init(Button* button, int pin, uint16_t LEDNumber) {
     pin_digitalIn(&D[pin]);
 
     button->state = 0;
     button->prevState = 0;
     button->pin = &D[pin];
+    button->isSensitive = 0;
+    button->LEDNumber = LEDNumber;
+}
+
+void activate(Button* button) {
+    button->isSensitive = 1;
+    writeLEDState(PERIPHERAL, button->LEDNumber, LIT);
+}
+
+void deactivate(Button* button) {
+    button->isSensitive = 0;
+    writeLEDState(PERIPHERAL, button->LEDNumber, UNLIT);
 }
 
 void printMole(Mole* mole) {
@@ -89,6 +102,7 @@ void setMoleDown(Mole* mole) {
     mole->downTime = gameTime;
     mole->downTimePassed = 0;
     mole->downWait = WAIT_MAX;
+    // deactivate(mole->button);
     printf("lowering mole %d\n", mole->number);
     // printMole(mole);
 }
@@ -116,6 +130,7 @@ void push_up(Mole* mole) {
     mole->upTime = gameTime;
     mole->upTimePassed = 0;
     mole->downWait = (double) WAIT_MAX;
+    activate(mole->button);
     printf("rasing mole %d\n", mole->number);
     // printMole(mole);
 }

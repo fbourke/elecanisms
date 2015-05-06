@@ -347,7 +347,7 @@ void VendorRequestsOut(void) {
 
 void detect_hammer(void) {
 	uint8_t values[6] = {0,0,0,0,0,0};
-	int32_t thresholdSq = 5000000;
+	int32_t thresholdSq = 2000000;
 
 
 	xl_readRegs(0x0E, &values, 6);
@@ -366,11 +366,11 @@ void detect_hammer(void) {
 
 	 if (sumsq > thresholdSq) {
 	    pin_set(&rb0);
-	    pin_set(led1);
+	    // pin_set(led1);
 	    pin_set(led2);
 	} else {
 	    pin_clear(&rb0);
-	    pin_clear(led1);
+	    // pin_clear(led1);
 	    pin_clear(led2);
 	}
 	printf("%li\n",sumsq);
@@ -407,6 +407,8 @@ int16_t main(void) {
     show_xlint2 = 0;
     timer_setPeriod(&timer1, .005);
 	timer_start(&timer1);
+    timer_setPeriod(&timer2, 0.5);
+    timer_start(&timer2);
 
     InitUSB();                              // initialize the USB registers and serial interface engine
     while (USB_USWSTAT!=CONFIG_STATE) {     // while the peripheral is not configured...
@@ -423,6 +425,9 @@ int16_t main(void) {
     	if (timer_flag(&timer1)) {
             timer_lower(&timer1);
 			detect_hammer();
-		}
-	}    	
+		} else if (timer_flag(&timer2)) {
+            timer_lower(&timer2);
+            pin_toggle(led1);
+        }
+	}
 }
