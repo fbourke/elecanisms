@@ -35,6 +35,12 @@ _PIN *mpucs, *g_cs, *xm_cs;
 _PIN *led1, *led2, *sw1;
 _PIN *xlint1, *xlint2;
 uint8_t show_xlint1, show_xlint2;
+int16_t x;
+int16_t y;
+int16_t z;
+int32_t sumsq;
+uint8_t values[6] = {0,0,0,0,0,0};
+int32_t thresholdSq = 3000000;
 
 void g_writeReg(uint8_t address, uint8_t value) {
     if (address<=0x38) {
@@ -346,23 +352,20 @@ void VendorRequestsOut(void) {
 }
 
 void detect_hammer(void) {
-	uint8_t values[6] = {0,0,0,0,0,0};
-	int32_t thresholdSq = 3000000;
-
 
 	xl_readRegs(0x0E, &values, 6);
 
-	int16_t x = values[0] + 256*values[1];
-	int16_t y = values[2] + 256*values[3]; 
-	int16_t z = values[4] + 256*values[5];
+	x = values[0] + 256*values[1];
+	y = values[2] + 256*values[3]; 
+	z = values[4] + 256*values[5];
 
 	x = x>32767 ? x - 65536 : x;
 	y = y>32767 ? y - 65536 : y;
 	z = z>32767 ? z - 65536 : z;
 
-	int32_t sumsq = ((int32_t) x)*((int32_t) x) +
-	                ((int32_t) y)*((int32_t) y) +
-	                ((int32_t) z)*((int32_t) z);
+	sumsq = ((int32_t) x)*((int32_t) x) +
+            ((int32_t) y)*((int32_t) y) +
+            ((int32_t) z)*((int32_t) z);
 
 	 if (sumsq > thresholdSq) {
 	    pin_set(&rb0);
@@ -376,7 +379,7 @@ void detect_hammer(void) {
 	}
 
 	printf("%li\n",sumsq);
-    }
+}
 
 int16_t main(void) {
     init_clock();
@@ -385,8 +388,7 @@ int16_t main(void) {
     init_xl();
     init_timer();
 
-   pin_digitalOut(&rb0);
-
+    pin_digitalOut(&rb0);
 
     mpucs = &ra2;
     pin_digitalOut(mpucs);
