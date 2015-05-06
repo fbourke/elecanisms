@@ -431,9 +431,17 @@
           <h3><i class="mdi-editor-merge-type blue-text"></i></h3>
           <h4>View Our Code on Github</h4>
           <h5 class=" light">Including both our microcontroller code and the source for this website: <a href="https://github.com/fbourke/elecanisms">https://github.com/fbourke/elecanisms</a></h5>
-          </br>
-          </br>
-          </br>
+          <h6>Object Oriented</h6>
+          <p class="light">Much of the code was abstracted to a system of structs. Our primary struct was the Mole struct. This contains all important components related to the Moles. This includes solenoid values, mole number and button. Moles keep track of how long they are in an up or down position along with their direction and valve status. These factors are important for timing when to rise and drop moles along with player interactions with the Moles.</p>
+          <p class="light">Buttons also have their own struct. As mentioned before every Mole had its own button. The buttons struct simply contains the current state of the button, its previous state and its pin value.</p>
+          <p class="light">All of the valve logic can be found in the Mole structs. All of the valves are on the same shift register so they could not be simply set to high or low when needed. The valves share a clock pin and a data pin. To change a valve’s state the entire binary data value must be updated before being pushed to the registers.</p>
+          <p class="light">LEDs do not have their own class but can do have their own library file. The libraries have been divided into three primary subsections; time, score and peripherals. The library also handles all of the LED driver shift register logic.</p>
+          <h6>Game States</h6>
+          <p class="light">The game has a few important game states that dictate its current function. COIN_NEEDED is a state in which the game is simply waiting for the player to insert a coin. Once this condition has been met the game switches over to MODE_NEEDED. In this state the game is waiting for the player to use the two stand-alone buttons to select a desired mode. At this point the game state switches to NICE and a new state variable “gameMode” is introduced. Game Mode simply keeps track of if the game is in EASY or HARD mode. The game state switches to EVIL while not changing its Game Mode once the player reaches 10 points.</p>
+          <h6>Scheduling</h6>
+          <p class="light">For the state machine to work properly the game needs a set of timing variables. These variables schedule and organize the different tasks the game needs to complete.</p>
+          <p class="light">The game’s overall period is used in all states of the game. When in the COIN_NEEDED state, the period is used to check if a coin has been added by the player. During the MODE_NEEDED state, it checks if a mode has been selected. Finally in the EVIL or NICE states the timer is used to check the current states of the moles and push them up or down if necessary. It also updates the overall time that has passed and checks if the player has failed.</p>
+          <p class="light">The game also has a reading loop timer. This is only used in the EVIL and NICE game states. This  checks if a button on a mole has been hit.</p>
         </div>
       </div>
       <div class="row">
