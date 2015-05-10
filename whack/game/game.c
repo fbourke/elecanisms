@@ -34,6 +34,8 @@ uint16_t lastScore = 16;
 uint16_t lastTime = 16;
 uint16_t timeLightNumber;
 
+uint16_t modeModifier = 0;
+
 typedef enum {
 NICE,
 EVIL,
@@ -59,11 +61,20 @@ uint16_t playingGame() {
     }
 }
 
+uint16_t button_pressed(Button* button) {
+    button->state = !pin_read(button->pin);
+    button->prevState = button->state;
+    if (button->state) {
+        return 1;
+    }
+}
+
 uint16_t coinInserted;
 void waitingForCoin() {
     coinVoltage = pin_read(&A[3]) >> 6;
     coinInserted = (coinVoltage > 100);
-    if (coinInserted) {
+    if (coinInserted || (button_pressed(&moleButtons[1]) &&
+                         button_pressed(&moleButtons[2]))) {
         // printf("Coin inserted\n");
         flashAllLEDs(16, 16, 4, 0);
         gameTime = 0;
@@ -98,6 +109,15 @@ void beginGame() {
     gameTime = 0.0;
 }
 
+void incrementModeModifier(uint16_t increment) {
+    modeModifier += increment;
+    if (modeModifier > 4) {
+        modeModifier = 4;
+    } if (modeModifier < 0) {
+        modeModifier = 0;
+    }
+}
+
 void waitingForMode() {
     if (button_hit(&modeButtons[0])) {
         gameMode = EASY;
@@ -105,6 +125,9 @@ void waitingForMode() {
     } else if (button_hit(&modeButtons[1])) {
         gameMode = HARD;
         beginGame(); return;
+    }
+    if (button_hit(&moleButtons[1])) {
+        incrementModeModifier(1);
     }
     if ((gameTime - (int) gameTime) < 0.5) {
         writeLEDState(PERIPHERAL, 0, LIT);
@@ -131,14 +154,19 @@ void scheduleUp(Mole* mole) {
 
 void scheduleDown(Mole* mole) {
     if (gameMode == EASY) {
-        mole->upWait = WAIT_MAX; // + 1.0 * randDouble();
+        if (modeModifier == 0) {
+            mole->upWait = WAIT_MAX; // + 1.0 * randDouble();
+        } else {
+            mole->upWait = 0.5 + 5.0 / ((double) modeModifier) * randDouble();
+        }
     } else if (gameMode == HARD) {
-        mole->upWait = 0.2 + 0.8 * randDouble();
+        mole->upWait = 0.2 + (0.4 + (0.2 * ((double) modeModifier))) * randDouble();
     }
 }
 
 void reset_game() {
     gameTime = 0.0;
+    modeModifier = 0;
     gameState = COIN_NEEDED;
     allMolesDown();
     mole_longDelay();
@@ -189,7 +217,9 @@ void moleHit(Mole* mole) {
 }
 
 void moleMissed(Mole* mole) {
-    incrementScore(-1);
+    if (gameMode == HARD) {
+        incrementScore(-1);
+    }
     push_down(mole);
     scheduleUp(mole);
 }
@@ -200,7 +230,7 @@ void molePop(Mole* mole) {
     lastUpTime = gameTime;
 }
 
-void switch_state() {
+double resetPressTime = void switch_state() {
     for (i=0; i<3; i++) {
         mole = &moles[i];
         if (mole->direction == UP) {
@@ -258,9 +288,9 @@ void senseButtons() {
             for (i = 0; i < 3; ++i) {
                 mole = &moles[i];
                 scheduleUp(mole);
-                if (gameMode == HARD) {
-                    incrementScore(-1);
-                }
+            }
+            if (gameMode == HARD) {
+                incrementScore(-1);
             }
         }
     }
@@ -277,6 +307,7 @@ void cyclePeripherals() {
     peripheralCycleNumber = ((int16_t) floor(gameTime / 0.15)) % 18 - 8;
     writeLEDBlock(PERIPHERAL, LEDsLitBetween(peripheralCycleNumber, 
                                              peripheralCycleNumber + 9));
+    if (gameTime > 1000.0) gameTime = 0;
 }
 
 double timeRemaining;
@@ -334,6 +365,10 @@ int16_t main(void) {
     timer_start(&timer3);
 
     reset_game();
+    for (i = 0; i < 1; ++i)
+    {
+        mole_longDelay();
+    }
 
     while (1) {
         if (gameState == COIN_NEEDED) {
