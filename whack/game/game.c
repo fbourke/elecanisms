@@ -111,6 +111,7 @@ void beginGame() {
 
 void incrementModeModifier(uint16_t increment) {
     modeModifier += increment;
+    printf("modeModifier: %d\n", modeModifier);
     if (modeModifier > 4) {
         modeModifier = 4;
     } if (modeModifier < 0) {
@@ -148,7 +149,7 @@ void scheduleUp(Mole* mole) {
     if (gameMode == EASY) {
         mole->downWait = 1.0 + 2.0 * randDouble();
     } else if (gameMode == HARD) {
-        mole->downWait = 0.5 + 1.0 * randDouble();
+        mole->downWait = 0.3 + 0.8 * randDouble();
     }
 }
 
@@ -160,7 +161,7 @@ void scheduleDown(Mole* mole) {
             mole->upWait = 0.5 + 5.0 / ((double) modeModifier) * randDouble();
         }
     } else if (gameMode == HARD) {
-        mole->upWait = 0.2 + (0.4 + (0.2 * ((double) modeModifier))) * randDouble();
+        mole->upWait = 0.2 + (0.4 + (0.3 * ((double) modeModifier))) * randDouble();
     }
 }
 
@@ -230,7 +231,12 @@ void molePop(Mole* mole) {
     lastUpTime = gameTime;
 }
 
-double resetPressTime = void switch_state() {
+void switch_state() {
+    if (button_pressed(&modeButtons[0]) &&
+        button_pressed(&modeButtons[1])) {
+            reset_game();
+            return;
+    }
     for (i=0; i<3; i++) {
         mole = &moles[i];
         if (mole->direction == UP) {
