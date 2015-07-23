@@ -50,13 +50,16 @@
 
 	  <div class="row">
 	    <div class="col s12">
-        <h2 class="center blue-text"><img src="img/moleicon.png" width=200px></h2>
-	      <h2 class="center">What is Wack-A-Mole?</h2>
-        <h5 class="center">Certainly not Whack-A-Mole, that's for sure.</h5>
-        <p class="light">Any likeness of any features of Wack-A-Mole to any copyrighted likenesses is purely coincidental. With that said, Wack-A-Mole is a game designed in the Spring of 2015 by four Olin engineering students. The game, designed to fit into a penny arcade theme, is simple: hit moles with a hammer to score points before time runs out. However, there is an additonal element to our game—concealed in the hammer is a sensor used to detect when the player is about to attack a mole. As it turns out, it can be incredibly difficult to hit a series of moles that seem to know your every move... </p>
-        <p>How does this work? The hammer contains a small PIC microcontroller board that includes an accelerometer. When the player swings the hammer or jerks it substantially the small PIC sends a “dodge” signal to the main board. When this occurs, all moles that are currently in the up position are instantly retracted.</p>
+        	<h2 class="center blue-text"><img src="img/moleicon.png" width=200px></h2>
+	        <h2 class="center">What is Wack-A-Mole?</h2>
+        	<h5 class="center">Certainly not Whack-A-Mole, that's for sure.</h5>
+        	<p class="light">Any likeness of any features of Wack-A-Mole to any copyrighted likenesses is purely coincidental. With that said, Wack-A-Mole is a game designed in the Spring of 2015 by four Olin engineering students. The game, designed to fit into a penny arcade theme, is simple: hit moles with a hammer to score points before time runs out. However, there is an additonal element to our game—concealed in the hammer is a sensor used to detect when the player is about to attack a mole. As it turns out, it can be incredibly difficult to hit a series of moles that seem to know your every move... </p>
+        	<p class="light">How does this work? The hammer contains a small PIC microcontroller board that includes an accelerometer. When the player swings the hammer or jerks it substantially the small PIC sends a “dodge” signal to the main board. When this occurs, all moles that are currently in the up position are instantly retracted.</p>
 	    </div>
 	  </div>
+	  <div class="row center">
+	    <a href="https://www.youtube.com/watch?v=3j-_X7gOFWI" id="youtube-button" class="btn-large waves-effect waves-light blue lighten-1">Wack-A-Mole on YouTube</a>
+    	  </div>
       <!--   Icon Section   -->
       <div class="row">
         <div class="col s12 m4">
@@ -626,6 +629,13 @@
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="js/materialize.js"></script>
   <script src="js/init.js"></script>
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-41729175-1', 'auto');  ga('send', 'pageview');
+  </script>
 
   </body>
 </html>
